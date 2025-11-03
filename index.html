@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🌸 S.A.R.A.H. Calendar Helper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fdf7ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 640px;
+      margin: 16px;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 18px 16px 24px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    h1 span { font-size: 1.8rem; }
+
+    .subtitle {
+      font-size: 0.92rem;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffe9ff;
+      color: #7a267b;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    form { margin-top: 8px; }
+
+    .field-group { margin-bottom: 10px; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #777;
+      margin-bottom: 3px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select,
+    input[type="number"] {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+      background-color: #fdfbff;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #c573ff;
+      box-shadow: 0 0 0 2px rgba(197,115,255,0.25);
+      background-color: #ffffff;
+    }
+
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row > div { flex: 1; }
+
+    .btn-row {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: #0b8043;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(11,128,67,0.35);
+    }
+
+    .btn-secondary {
+      background: #f4f0ff;
+      color: #5b4ea3;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .output-section {
+      margin-top: 18px;
+      border-top: 1px dashed #e5d7ff;
+      padding-top: 14px;
+    }
+
+    .output-section h2 {
+      font-size: 1.1rem;
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-preview {
+      border-radius: 14px;
+      padding: 12px 12px 10px;
+      margin-bottom: 8px;
+      background: #fff7ff;
+      border: 1px solid #f1dfff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-preview::after {
+      content: "✨";
+      position: absolute;
+      right: 10px;
+      bottom: 6px;
+      opacity: 0.4;
+      font-size: 1.2rem;
+    }
+
+    .card-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .card-line {
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    .card-note {
+      font-size: 0.82rem;
+      color: #6b5a9c;
+      margin-top: 4px;
+    }
+
+    .card-preview.hidden,
+    .encouragement.hidden {
+      display: none;
+    }
+
+    .encouragement {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: #444;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .encouragement span.emoji {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .tiny {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .quote {
+      margin-top: 4px;
+      font-size: 0.78rem;
+      color: #7a6bb4;
+      font-style: italic;
+    }
+
+    .mood-softpink { background: #fff3fc; border-color: #ffc8f3; }
+    .mood-sunrise  { background: #fff7e3; border-color: #ffd593; }
+    .mood-ocean    { background: #eaf7ff; border-color: #9ad1ff; }
+    .mood-mint     { background: #e9fff6; border-color: #a3f2cf; }
+
+    @media (max-width: 480px) {
+      .row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="pill">
+      🌸 S.A.R.A.H. · Simple Assistant for Reminders, Activities & Homework
+    </div>
+
+    <h1><span>📆</span> Calendar Helper</h1>
+    <div class="subtitle">
+      Fill this out like you’re telling a friend what’s happening.  
+      Then tap the green button and I’ll open Google Calendar for you. ✨
+    </div>
+
+    <form id="eventForm">
+      <div class="field-group">
+        <label for="title">1) What is this?</label>
+        <div class="hint">Example: Choir Rehearsal, Baseball Practice, Math Homework</div>
+        <input type="text" id="title" placeholder="e.g., Math Homework, Choir Rehearsal">
+      </div>
+
+      <div class="field-group row">
+        <div>
+          <label for="emoji">Pick an emoji (optional)</label>
+          <select id="emoji">
+            <option value="">Let S.A.R.A.H. guess ✨</option>
+            <option value="🎶">🎶 Music / Choir</option>
+            <option value="🏀">🏀 Basketball</option>
+            <option value="⚾">⚾ Baseball</option>
+            <option value="🎻">🎻 Music Lesson</option>
+            <option value="🎭">🎭 Show / Performance</option>
+            <option value="🎓">🎓 School Thing</option>
+            <option value="📚">📚 Homework / Study</option>
+            <option value="🎡">🎡 Fun Event</option>
+            <option value="🦁">🦁 Zoo / Animals</option>
+            <option value="⭐">⭐ Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="who">Who’s going?</label>
+          <div class="hint">Example: Me, Joseph, Dad</div>
+          <input type="text" id="who" placeholder="Me, Joseph, Mom, Dad">
+        </div>
+      </div>
+
+      <div class="field-group row">
+        <div>
+          <label for="date">2) What day?</label>
+          <input type="date" id="date">
+        </div>
+        <div>
+          <label>3) What time?</label>
+          <div class="row">
+            <div>
+              <div class="hint">Start</div>
+              <input type="time" id="startTime">
+            </div>
+            <div>
+              <div class="hint">End (optional)</div>
+              <input type="time" id="endTime">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="locationName">4) Where is it?</label>
+        <div class="hint">Example: Munford High School Gym, Kitchen Table, Library</div>
+        <input type="text" id="locationName" placeholder="Place name">
+      </div>
+
+      <div class="field-group">
+        <label for="address">Address (optional)</label>
+        <div class="hint">Street, city, zip if you know it.</div>
+        <input type="text" id="address" placeholder="123 Main St, Memphis, TN">
+      </div>
+
+      <div class="field-group">
+        <label for="description">5) What is this for?</label>
+        <div class="hint">Just 1–2 sentences in your own words.</div>
+        <textarea id="description" placeholder="It’s my math homework time so I can finish before bed."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label>6) Does this happen again?</label>
+        <div class="hint">Pick one that feels right.</div>
+        <select id="repeatType">
+          <option value="none">Just this one day</option>
+          <option value="daily">Every day</option>
+          <option value="weekly">Every week</option>
+          <option value="biweekly">Every 2 weeks</option>
+          <option value="monthly">Every month</option>
+          <option value="yearly">Every year</option>
+        </select>
+      </div>
+
+      <div class="field-group" id="repeatCountGroup">
+        <label for="repeatCount">If it repeats: how many times total?</label>
+        <div class="hint">Example: 8 practices, or 5 nights, or 3 years.</div>
+        <input type="number" id="repeatCount" min="2" max="366" placeholder="e.g., 8">
+      </div>
+
+      <div class="field-group">
+        <label for="emails">7) Who should get the invite emails?</label>
+        <div class="hint">Type their email addresses, separated by commas. Example: mom@email.com, dad@email.com</div>
+        <input type="text" id="emails" placeholder="mom@email.com, dad@email.com">
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-primary" id="gcalBtn">
+          📲 Add to Google Calendar
+        </button>
+        <button type="button" class="btn-secondary" id="demoBtn">
+          🎲 Fill with a fun example
+        </button>
+      </div>
+      <div class="tiny">
+        After you tap the green button, Google Calendar will open. Just check it and hit “Save.” ✅
+      </div>
+    </form>
+
+    <div class="output-section">
+      <h2>🪪 Quick Preview</h2>
+
+      <div id="cardPreview" class="card-preview hidden">
+        <div class="card-title" id="cardTitle"></div>
+        <div class="card-line" id="cardDate"></div>
+        <div class="card-line" id="cardTime"></div>
+        <div class="card-line" id="cardLocation"></div>
+        <div class="card-line" id="cardWho"></div>
+        <div class="card-line" id="cardWhat"></div>
+        <div class="card-note" id="cardNote"></div>
+      </div>
+
+      <div class="encouragement hidden" id="encouragement">
+        <span class="emoji">🌟</span>
+        <div>
+          <div id="encouragementText"></div>
+          <div class="quote" id="quoteText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const titleInput = document.getElementById("title");
+    const emojiSelect = document.getElementById("emoji");
+    const whoInput = document.getElementById("who");
+    const dateInput = document.getElementById("date");
+    const startTimeInput = document.getElementById("startTime");
+    const endTimeInput = document.getElementById("endTime");
+    const locationNameInput = document.getElementById("locationName");
+    const addressInput = document.getElementById("address");
+    const descriptionInput = document.getElementById("description");
+    const repeatTypeSelect = document.getElementById("repeatType");
+    const repeatCountInput = document.getElementById("repeatCount");
+    const repeatCountGroup = document.getElementById("repeatCountGroup");
+    const emailsInput = document.getElementById("emails");
+
+    const gcalBtn = document.getElementById("gcalBtn");
+    const demoBtn = document.getElementById("demoBtn");
+
+    const cardPreview = document.getElementById("cardPreview");
+    const cardTitle = document.getElementById("cardTitle");
+    const cardDate = document.getElementById("cardDate");
+    const cardTime = document.getElementById("cardTime");
+    const cardLocation = document.getElementById("cardLocation");
+    const cardWho = document.getElementById("cardWho");
+    const cardWhat = document.getElementById("cardWhat");
+    const cardNote = document.getElementById("cardNote");
+
+    const encouragementBox = document.getElementById("encouragement");
+    const encouragementText = document.getElementById("encouragementText");
+    const quoteText = document.getElementById("quoteText");
+
+    const moods = ["mood-softpink", "mood-sunrise", "mood-ocean", "mood-mint"];
+
+    const encouragements = [
+      "Nice planning! Future-you is already saying thank you. 💜",
+      "This is how leaders think: one clear step at a time. 🌟",
+      "You’re turning chaos into a game plan. Very pro of you. 🎮",
+      "Little organized moments like this make big days smoother. ✨",
+      "Somewhere out there, a stressed parent just felt a tiny bit better. 🧠"
+    ];
+
+    const quotes = [
+      "“The secret of getting ahead is getting started.” – Mark Twain",
+      "“Step by step and the thing is done.” – Charles Atlas",
+      "“Kids don’t remember what you teach, they remember what you are.” – Jim Henson",
+      "“There’s no place like home, except the calendar that keeps it running.” – S.A.R.A.H.",
+      "“You don’t have to be perfect, just present.” – Unknown"
+    ];
+
+    let currentEvent = null;
+
+    function formatDateForCard(dateStr) {
+      if (!dateStr) return "Date: (not set)";
+      const date = new Date(dateStr + "T00:00:00");
+      if (isNaN(date.getTime())) return "Date: " + dateStr;
+      const options = { weekday: "short", year: "numeric", month: "short", day: "numeric" };
+      return "Date: " + date.toLocaleDateString(undefined, options);
+    }
+
+    function formatTime12h(hhmm) {
+      if (!hhmm) return "";
+      const [hourStr, minuteStr] = hhmm.split(":");
+      let hour = parseInt(hourStr, 10);
+      const minute = minuteStr || "00";
+      if (isNaN(hour)) return hhmm;
+      const ampm = hour >= 12 ? "pm" : "am";
+      hour = hour % 12;
+      if (hour === 0) hour = 12;
+      return hour + ":" + minute + " " + ampm;
+    }
+
+    function guessEmoji(title) {
+      if (!title) return "⭐";
+      const t = title.toLowerCase();
+      if (t.includes("choir") || t.includes("sing") || t.includes("music")) return "🎶";
+      if (t.includes("basketball") || t.includes("bball")) return "🏀";
+      if (t.includes("baseball")) return "⚾";
+      if (t.includes("zoo") || t.includes("animals")) return "🦁";
+      if (t.includes("homework") || t.includes("study") || t.includes("assignment")) return "📚";
+      if (t.includes("practice")) return "💪";
+      if (t.includes("game") || t.includes("match")) return "🎮";
+      if (t.includes("birthday") || t.includes("party")) return "🎉";
+      return "⭐";
+    }
+
+    function buildPreviewAndStoreEvent() {
+      const title = titleInput.value.trim();
+      const who = whoInput.value.trim();
+      const dateStr = dateInput.value;
+      const startTime = startTimeInput.value;
+      let endTime = endTimeInput.value;
+      const locationName = locationNameInput.value.trim();
+      const address = addressInput.value.trim();
+      const description = descriptionInput.value.trim();
+      const repeatType = repeatTypeSelect.value;
+      let repeatCount = repeatCountInput.value.trim();
+      const emailsRaw = emailsInput.value.trim();
+
+      if (!title || !dateStr || !startTime) {
+        alert("S.A.R.A.H. says: I need at least a title, a date, and a start time. 🌸");
+        return null;
+      }
+
+      let emoji = emojiSelect.value;
+      if (!emoji) emoji = guessEmoji(title);
+
+      // default end time = +1 hour if empty
+      if (!endTime && startTime) {
+        const [sh, sm] = startTime.split(":").map(Number);
+        let endH = sh + 1;
+        let endM = sm;
+        if (endH >= 24) endH = 23;
+        endTime = String(endH).padStart(2, "0") + ":" + String(endM).padStart(2, "0");
+        endTimeInput.value = endTime;
+      }
+
+      if (repeatType !== "none") {
+        let n = parseInt(repeatCount, 10);
+        if (isNaN(n) || n < 2) {
+          // gentle auto-fix
+          n = 4;
+          repeatCountInput.value = "4";
+        }
+        repeatCount = n;
+      } else {
+        repeatCount = null;
+      }
+
+      const formattedDate = formatDateForCard(dateStr);
+      const startFormatted = formatTime12h(startTime);
+      const endFormatted = formatTime12h(endTime);
+      let timeLine = "Time: " + startFormatted;
+      if (endFormatted) timeLine += "–" + endFormatted;
+
+      const locationLine = locationName || address
+        ? "Location: " + [locationName, address].filter(Boolean).join(" – ")
+        : "Location: (not set yet)";
+
+      const whoLine = who
+        ? "Who’s going: " + who
+        : "Who’s going: (you can add this later)";
+
+      const whatLine = description
+        ? "What it is: " + description
+        : "What it is: (you can describe it later)";
+
+      let repeatLine = "";
+      if (repeatType === "daily")    repeatLine = "Repeats: every day";
+      if (repeatType === "weekly")   repeatLine = "Repeats: every week";
+      if (repeatType === "biweekly") repeatLine = "Repeats: every 2 weeks";
+      if (repeatType === "monthly")  repeatLine = "Repeats: every month";
+      if (repeatType === "yearly")   repeatLine = "Repeats: every year";
+      if (repeatLine && repeatCount) repeatLine += " (" + repeatCount + " times)";
+
+      const noteLine = "Tip: Plan to be there 5–10 minutes early so it feels calm. 🕒";
+
+      // Mood + encouragement
+      cardPreview.classList.remove(...moods);
+      const mood = moods[Math.floor(Math.random() * moods.length)];
+      cardPreview.classList.add(mood);
+
+      const encour = encouragements[Math.floor(Math.random() * encouragements.length)];
+      const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+      cardTitle.textContent   = emoji + " " + title;
+      cardDate.textContent    = formattedDate;
+      cardTime.textContent    = timeLine;
+      cardLocation.textContent= locationLine;
+      cardWho.textContent     = whoLine;
+      cardWhat.textContent    = whatLine + (repeatLine ? " · " + repeatLine : "");
+      cardNote.textContent    = noteLine;
+
+      cardPreview.classList.remove("hidden");
+      encouragementBox.classList.remove("hidden");
+      encouragementText.textContent = encour;
+      quoteText.textContent = quote;
+
+      // parse guest emails (optional)
+      let guestEmails = [];
+      if (emailsRaw) {
+        guestEmails = emailsRaw
+          .split(",")
+          .map(e => e.trim())
+          .filter(e => e.includes("@"));
+      }
+
+      currentEvent = {
+        title,
+        emoji,
+        who,
+        dateStr,
+        startTime,
+        endTime,
+        locationName,
+        address,
+        description,
+        repeatType,
+        repeatCount,
+        noteLine,
+        guestEmails
+      };
+
+      return currentEvent;
+    }
+
+    function toGCalDateTime(dateStr, timeStr) {
+      if (!dateStr || !timeStr) return "";
+      const [y, m, d] = dateStr.split("-");
+      const [H, M] = timeStr.split(":");
+      return y + m + d + "T" + H + M + "00";
+    }
+
+    function buildRecurrence(ev) {
+      if (!ev.repeatType || ev.repeatType === "none") return "";
+      let freq = "DAILY";
+      let extra = "";
+
+      if (ev.repeatType === "daily")   freq = "DAILY";
+      if (ev.repeatType === "weekly")  freq = "WEEKLY";
+      if (ev.repeatType === "biweekly"){ freq = "WEEKLY"; extra = ";INTERVAL=2"; }
+      if (ev.repeatType === "monthly") freq = "MONTHLY";
+      if (ev.repeatType === "yearly")  freq = "YEARLY";
+
+      let count = ev.repeatCount || 4;
+      if (count < 2) count = 2;
+
+      return "RRULE:FREQ=" + freq + extra + ";COUNT=" + count;
+    }
+
+    function addToGoogleCalendar() {
+      const ev = buildPreviewAndStoreEvent();
+      if (!ev) return;
+
+      const start = toGCalDateTime(ev.dateStr, ev.startTime);
+      const end = toGCalDateTime(ev.dateStr, ev.endTime || ev.startTime);
+      if (!start || !end) {
+        alert("S.A.R.A.H. couldn’t figure out the time. Double-check it and try again. ⏰");
+        return;
+      }
+
+      const title = (ev.emoji || "⭐") + " " + ev.title;
+      const locationFull = [ev.locationName, ev.address].filter(Boolean).join(" – ");
+
+      const detailsLines = [];
+      if (ev.description) detailsLines.push(ev.description);
+      if (ev.who) detailsLines.push("Who’s going: " + ev.who);
+      if (ev.noteLine) detailsLines.push(ev.noteLine);
+      const details = detailsLines.join("\n");
+
+      const recurRule = buildRecurrence(ev);
+
+      const base = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+      const params = [
+        "text=" + encodeURIComponent(title),
+        "details=" + encodeURIComponent(details),
+        "location=" + encodeURIComponent(locationFull),
+        "dates=" + encodeURIComponent(start + "/" + end)
+      ];
+
+      if (recurRule) {
+        params.push("recur=" + encodeURIComponent(recurRule));
+      }
+
+      if (ev.guestEmails && ev.guestEmails.length > 0) {
+        const addParam = ev.guestEmails.join(",");
+        params.push("add=" + encodeURIComponent(addParam));
+      }
+
+      const url = base + "&" + params.join("&");
+      window.open(url, "_blank");
+    }
+
+    function fillDemo() {
+      titleInput.value = "Math Homework";
+      emojiSelect.value = "📚";
+      whoInput.value = "Me";
+
+      const today = new Date();
+      const iso = today.toISOString().split("T")[0];
+      dateInput.value = iso;
+
+      startTimeInput.value = "18:00";
+      endTimeInput.value   = "18:45";
+      locationNameInput.value = "Kitchen Table";
+      addressInput.value      = "";
+
+      descriptionInput.value  = "This is my focused math homework time so I can get it done before bed.";
+      repeatTypeSelect.value  = "daily";
+      repeatCountInput.value  = "5";
+
+      emailsInput.value = "dad@example.com, mom@example.com";
+
+      buildPreviewAndStoreEvent();
+    }
+
+    // hide count if "just this one"
+    repeatTypeSelect.addEventListener("change", () => {
+      if (repeatTypeSelect.value === "none") {
+        repeatCountGroup.style.opacity = "0.3";
+      } else {
+        repeatCountGroup.style.opacity = "1";
+      }
+    });
+    repeatTypeSelect.dispatchEvent(new Event("change"));
+
+    gcalBtn.addEventListener("click", addToGoogleCalendar);
+    demoBtn.addEventListener("click", fillDemo);
+  </script>
+</body>
+</html>
