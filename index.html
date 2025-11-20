@@ -341,8 +341,16 @@
 
       <div class="field-group">
         <label for="emails">7) Who should get the invite emails?</label>
-        <div class="hint">Type their email addresses, separated by commas. Example: mom@email.com, dad@email.com</div>
-        <input type="text" id="emails" placeholder="mom@email.com, dad@email.com">
+        <div class="hint">
+          These emails are included by default (you can edit them):
+          Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com
+        </div>
+        <input
+          type="text"
+          id="emails"
+          placeholder="mom@email.com, dad@email.com"
+          value="Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com"
+        >
       </div>
 
       <div class="btn-row">
@@ -671,7 +679,7 @@
       repeatTypeSelect.value  = "daily";
       repeatCountInput.value  = "5";
 
-      emailsInput.value = "dad@example.com, mom@example.com";
+      emailsInput.value = "Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com";
 
       buildPreviewAndStoreEvent();
     }
