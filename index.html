@@ -8,9 +8,15 @@
   <style>
     * { box-sizing: border-box; }
 
+    :root {
+      --purple: #c573ff;
+      --deep-purple: #7a267b;
+      --green: #0b8043;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #fdf7ff;
+      background: linear-gradient(160deg, #fdf7ff 0%, #f3ecff 100%);
       margin: 0;
       padding: 0;
       display: flex;
@@ -50,20 +56,131 @@
       align-items: center;
       gap: 6px;
       background: #ffe9ff;
-      color: #7a267b;
+      color: var(--deep-purple);
       font-size: 0.8rem;
       padding: 4px 10px;
       border-radius: 999px;
       margin-bottom: 10px;
     }
 
+    /* ---------- GAME BAR ---------- */
+    .gamebar {
+      background: linear-gradient(135deg, #7a267b 0%, #c573ff 100%);
+      color: #fff;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(122,38,123,0.3);
+    }
+
+    .gamebar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.18);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .stat .big { font-size: 1.05rem; }
+
+    .level-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .xpbar-track {
+      height: 12px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .xpbar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffe9a8, #ffd166);
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(.2,.9,.3,1);
+    }
+
+    .xptext {
+      font-size: 0.72rem;
+      margin-top: 4px;
+      opacity: 0.95;
+      text-align: right;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      font-size: 1.15rem;
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      cursor: help;
+      transition: transform 0.15s ease;
+    }
+
+    .badge.locked { filter: grayscale(1); opacity: 0.35; }
+    .badge.earned { background: rgba(255,255,255,0.35); }
+    .badge.earned:hover { transform: scale(1.2) rotate(-6deg); }
+
+    /* ---------- QUICK TEMPLATES ---------- */
+    .templates {
+      margin-bottom: 14px;
+    }
+    .templates-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--deep-purple);
+      margin-bottom: 6px;
+    }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      border: 1px solid #e6d4ff;
+      background: #faf5ff;
+      color: #5b4ea3;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.15s ease;
+    }
+    .chip:hover { background: #f1e6ff; }
+    .chip:active { transform: scale(0.95); }
+
     form { margin-top: 8px; }
 
-    .field-group { margin-bottom: 10px; }
+    .field-group { margin-bottom: 12px; }
 
     label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 600;
       margin-bottom: 3px;
     }
@@ -81,10 +198,10 @@
     select,
     input[type="number"] {
       width: 100%;
-      padding: 7px 9px;
+      padding: 9px 11px;
       border-radius: 10px;
       border: 1px solid #ddd;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       outline: none;
       transition: border 0.15s ease, box-shadow 0.15s ease;
       background-color: #fdfbff;
@@ -93,9 +210,32 @@
     input:focus,
     textarea:focus,
     select:focus {
-      border-color: #c573ff;
+      border-color: var(--purple);
       box-shadow: 0 0 0 2px rgba(197,115,255,0.25);
       background-color: #ffffff;
+    }
+
+    .field-error input,
+    .field-error select {
+      border-color: #ff6b8a;
+      box-shadow: 0 0 0 2px rgba(255,107,138,0.2);
+    }
+
+    .field-msg {
+      font-size: 0.74rem;
+      color: #d6336c;
+      margin-top: 3px;
+      display: none;
+    }
+    .field-error .field-msg { display: block; }
+
+    .shake { animation: shake 0.35s; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
     }
 
     textarea {
@@ -103,15 +243,11 @@
       resize: vertical;
     }
 
-    .row {
-      display: flex;
-      gap: 10px;
-    }
-
+    .row { display: flex; gap: 10px; }
     .row > div { flex: 1; }
 
     .btn-row {
-      margin-top: 12px;
+      margin-top: 14px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -120,9 +256,9 @@
     button {
       border-radius: 999px;
       border: none;
-      padding: 9px 16px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      padding: 11px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -130,15 +266,15 @@
       transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
     }
 
-    button:active {
-      transform: translateY(1px);
-      box-shadow: none;
-    }
+    button:active { transform: translateY(1px); box-shadow: none; }
 
     .btn-primary {
-      background: #0b8043;
+      background: var(--green);
       color: #fff;
       box-shadow: 0 4px 10px rgba(11,128,67,0.35);
+      flex: 1;
+      min-width: 200px;
+      justify-content: center;
     }
 
     .btn-secondary {
@@ -180,27 +316,12 @@
       font-size: 1.2rem;
     }
 
-    .card-title {
-      font-weight: 700;
-      margin-bottom: 4px;
-      font-size: 1rem;
-    }
-
-    .card-line {
-      font-size: 0.9rem;
-      margin-bottom: 2px;
-    }
-
-    .card-note {
-      font-size: 0.82rem;
-      color: #6b5a9c;
-      margin-top: 4px;
-    }
+    .card-title { font-weight: 700; margin-bottom: 4px; font-size: 1rem; }
+    .card-line { font-size: 0.9rem; margin-bottom: 2px; }
+    .card-note { font-size: 0.82rem; color: #6b5a9c; margin-top: 4px; }
 
     .card-preview.hidden,
-    .encouragement.hidden {
-      display: none;
-    }
+    .encouragement.hidden { display: none; }
 
     .encouragement {
       margin-top: 10px;
@@ -211,28 +332,73 @@
       gap: 6px;
     }
 
-    .encouragement span.emoji {
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
+    .encouragement span.emoji { font-size: 1.1rem; flex-shrink: 0; }
 
-    .tiny {
-      font-size: 0.75rem;
-      color: #888;
-      margin-top: 4px;
-    }
-
-    .quote {
-      margin-top: 4px;
-      font-size: 0.78rem;
-      color: #7a6bb4;
-      font-style: italic;
-    }
+    .tiny { font-size: 0.75rem; color: #888; margin-top: 8px; text-align: center; }
+    .quote { margin-top: 4px; font-size: 0.78rem; color: #7a6bb4; font-style: italic; }
 
     .mood-softpink { background: #fff3fc; border-color: #ffc8f3; }
     .mood-sunrise  { background: #fff7e3; border-color: #ffd593; }
     .mood-ocean    { background: #eaf7ff; border-color: #9ad1ff; }
     .mood-mint     { background: #e9fff6; border-color: #a3f2cf; }
+
+    /* ---------- HISTORY ---------- */
+    .history-section { margin-top: 20px; border-top: 1px dashed #e5d7ff; padding-top: 14px; }
+    .history-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px;
+    }
+    .history-head h2 { font-size: 1.1rem; margin: 0; }
+    .lastused {
+      font-size: 0.78rem;
+      color: var(--deep-purple);
+      background: #faf3ff;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .history-list { list-style: none; padding: 0; margin: 0; }
+    .history-item {
+      font-size: 0.85rem;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #fbf8ff;
+      border: 1px solid #f0e6ff;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .history-item .when { color: #999; font-size: 0.74rem; white-space: nowrap; }
+    .history-empty { font-size: 0.82rem; color: #999; font-style: italic; }
+    .link-btn {
+      background: none; border: none; color: #b06bff; font-size: 0.76rem;
+      cursor: pointer; padding: 2px 4px; font-weight: 600;
+    }
+
+    /* ---------- TOAST + CONFETTI ---------- */
+    #confetti {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 9998;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(120px);
+      background: #2b2140;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      z-index: 9999;
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(.2,.9,.3,1), opacity 0.4s;
+      text-align: center;
+      max-width: 90%;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
     @media (max-width: 480px) {
       .row { flex-direction: column; }
@@ -240,22 +406,45 @@
   </style>
 </head>
 <body>
+  <canvas id="confetti"></canvas>
+
   <div class="app">
     <div class="pill">
-      🌸 S.A.R.A.H. · Simple Assistant for Reminders, Activities & Homework
+      🌸 S.A.R.A.H. · Simple Assistant for Reminders, Activities &amp; Homework
     </div>
 
     <h1><span>📆</span> Calendar Helper</h1>
     <div class="subtitle">
-      Fill this out like you’re telling a friend what’s happening.  
+      Fill this out like you’re telling a friend what’s happening.
       Then tap the green button and I’ll open Google Calendar for you. ✨
     </div>
 
+    <!-- ===== GAME BAR ===== -->
+    <div class="gamebar">
+      <div class="gamebar-top">
+        <div class="level-name"><span id="levelEmoji">🌱</span> <span id="levelName">Sprout Planner</span> · Lvl <span id="levelNum">1</span></div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <span class="stat">🔥 <span class="big" id="streakNum">0</span> day streak</span>
+          <span class="stat">📅 <span class="big" id="totalNum">0</span> planned</span>
+        </div>
+      </div>
+      <div class="xpbar-track"><div class="xpbar-fill" id="xpFill"></div></div>
+      <div class="xptext" id="xpText">0 / 100 XP</div>
+      <div class="badge-row" id="badgeRow"></div>
+    </div>
+
+    <!-- ===== QUICK TEMPLATES ===== -->
+    <div class="templates">
+      <div class="templates-label">⚡ Quick start — tap one to fill it in:</div>
+      <div class="chip-row" id="chipRow"></div>
+    </div>
+
     <form id="eventForm">
-      <div class="field-group">
+      <div class="field-group" id="fg-title">
         <label for="title">1) What is this?</label>
         <div class="hint">Example: Choir Rehearsal, Baseball Practice, Math Homework</div>
         <input type="text" id="title" placeholder="e.g., Math Homework, Choir Rehearsal">
+        <div class="field-msg">Give it a name so we know what it is. 🌸</div>
       </div>
 
       <div class="field-group row">
@@ -283,16 +472,18 @@
       </div>
 
       <div class="field-group row">
-        <div>
+        <div id="fg-date">
           <label for="date">2) What day?</label>
           <input type="date" id="date">
+          <div class="field-msg">Pick a day. 📅</div>
         </div>
         <div>
           <label>3) What time?</label>
           <div class="row">
-            <div>
+            <div id="fg-start">
               <div class="hint">Start</div>
               <input type="time" id="startTime">
+              <div class="field-msg">Pick a start time. ⏰</div>
             </div>
             <div>
               <div class="hint">End (optional)</div>
@@ -316,7 +507,7 @@
 
       <div class="field-group">
         <label for="description">5) What is this for?</label>
-        <div class="hint">Just 1–2 sentences in your own words.</div>
+        <div class="hint">Just 1–2 sentences in your own words. (+5 bonus XP for filling this in!)</div>
         <textarea id="description" placeholder="It’s my math homework time so I can finish before bed."></textarea>
       </div>
 
@@ -358,7 +549,10 @@
           📲 Add to Google Calendar
         </button>
         <button type="button" class="btn-secondary" id="demoBtn">
-          🎲 Fill with a fun example
+          🎲 Fun example
+        </button>
+        <button type="button" class="btn-secondary" id="clearBtn">
+          🧹 Clear
         </button>
       </div>
       <div class="tiny">
@@ -387,9 +581,26 @@
         </div>
       </div>
     </div>
+
+    <!-- ===== HISTORY ===== -->
+    <div class="history-section">
+      <div class="history-head">
+        <h2>📜 Activity Log</h2>
+        <span class="lastused" id="lastUsed">Never used yet</span>
+      </div>
+      <ul class="history-list" id="historyList">
+        <li class="history-empty">Nothing here yet — add your first event to start the log! 🌟</li>
+      </ul>
+      <button type="button" class="link-btn" id="clearHistoryBtn" style="display:none;">clear log</button>
+    </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script>
+    /* ============================================================
+       S.A.R.A.H. — element references
+       ============================================================ */
     const titleInput = document.getElementById("title");
     const emojiSelect = document.getElementById("emoji");
     const whoInput = document.getElementById("who");
@@ -406,6 +617,7 @@
 
     const gcalBtn = document.getElementById("gcalBtn");
     const demoBtn = document.getElementById("demoBtn");
+    const clearBtn = document.getElementById("clearBtn");
 
     const cardPreview = document.getElementById("cardPreview");
     const cardTitle = document.getElementById("cardTitle");
@@ -440,6 +652,285 @@
 
     let currentEvent = null;
 
+    /* ============================================================
+       GAME STATE (saved in the browser via localStorage)
+       ============================================================ */
+    const STORE_KEY = "sarah_game_v1";
+
+    const LEVELS = [
+      { min: 0,   emoji: "🌱", name: "Sprout Planner" },
+      { min: 100, emoji: "🌿", name: "Growing Planner" },
+      { min: 250, emoji: "🌸", name: "Blooming Planner" },
+      { min: 500, emoji: "⭐", name: "Star Planner" },
+      { min: 900, emoji: "🚀", name: "Rocket Planner" },
+      { min: 1500,emoji: "👑", name: "Legendary Planner" }
+    ];
+
+    const BADGES = [
+      { id: "first",   emoji: "🌱", title: "First Plan — added your very first event" },
+      { id: "streak3", emoji: "🔥", title: "On Fire — used S.A.R.A.H. 3 days in a row" },
+      { id: "study",   emoji: "📚", title: "Bookworm — planned homework or study time" },
+      { id: "repeat",  emoji: "🔁", title: "Repeater — created a repeating event" },
+      { id: "ten",     emoji: "⭐", title: "Pro Planner — planned 10 events" },
+      { id: "legend",  emoji: "🏆", title: "Legend — planned 25 events" }
+    ];
+
+    function defaultState() {
+      return { xp: 0, total: 0, streak: 0, lastDay: null, badges: [], history: [] };
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return defaultState();
+        const s = JSON.parse(raw);
+        return Object.assign(defaultState(), s);
+      } catch (e) {
+        return defaultState();
+      }
+    }
+
+    function saveState() {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    let state = loadState();
+
+    function todayKey() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function levelFor(xp) {
+      let lvl = LEVELS[0], idx = 0;
+      for (let i = 0; i < LEVELS.length; i++) {
+        if (xp >= LEVELS[i].min) { lvl = LEVELS[i]; idx = i; }
+      }
+      const next = LEVELS[idx + 1] || null;
+      return { lvl, idx, next };
+    }
+
+    function renderGame() {
+      const { lvl, idx, next } = levelFor(state.xp);
+      document.getElementById("levelEmoji").textContent = lvl.emoji;
+      document.getElementById("levelName").textContent = lvl.name;
+      document.getElementById("levelNum").textContent = idx + 1;
+      document.getElementById("streakNum").textContent = state.streak;
+      document.getElementById("totalNum").textContent = state.total;
+
+      const floor = lvl.min;
+      const ceil = next ? next.min : lvl.min + 100;
+      const pct = next ? Math.min(100, Math.round(((state.xp - floor) / (ceil - floor)) * 100)) : 100;
+      document.getElementById("xpFill").style.width = pct + "%";
+      document.getElementById("xpText").textContent = next
+        ? state.xp + " / " + ceil + " XP — " + (ceil - state.xp) + " to level up!"
+        : state.xp + " XP — MAX LEVEL! 👑";
+
+      const row = document.getElementById("badgeRow");
+      row.innerHTML = "";
+      BADGES.forEach(b => {
+        const el = document.createElement("span");
+        const earned = state.badges.includes(b.id);
+        el.className = "badge " + (earned ? "earned" : "locked");
+        el.textContent = b.emoji;
+        el.title = earned ? b.title : "🔒 Locked — " + b.title;
+        row.appendChild(el);
+      });
+
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById("historyList");
+      const clearBtn = document.getElementById("clearHistoryBtn");
+      const lastUsed = document.getElementById("lastUsed");
+
+      if (!state.history.length) {
+        list.innerHTML = '<li class="history-empty">Nothing here yet — add your first event to start the log! 🌟</li>';
+        clearBtn.style.display = "none";
+        lastUsed.textContent = "Never used yet";
+        return;
+      }
+
+      lastUsed.textContent = "Last used: " + friendlyWhen(state.history[0].at);
+      clearBtn.style.display = "inline-block";
+
+      list.innerHTML = "";
+      state.history.slice(0, 12).forEach(h => {
+        const li = document.createElement("li");
+        li.className = "history-item";
+        const left = document.createElement("span");
+        left.textContent = (h.emoji || "📌") + " " + h.title + (h.date ? " · " + h.date : "");
+        const right = document.createElement("span");
+        right.className = "when";
+        right.textContent = friendlyWhen(h.at);
+        li.appendChild(left);
+        li.appendChild(right);
+        list.appendChild(li);
+      });
+    }
+
+    function friendlyWhen(iso) {
+      const then = new Date(iso);
+      if (isNaN(then.getTime())) return "";
+      const now = new Date();
+      const ms = now - then;
+      const mins = Math.floor(ms / 60000);
+      if (mins < 1) return "just now";
+      if (mins < 60) return mins + " min ago";
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + (hrs === 1 ? " hour ago" : " hours ago");
+      const days = Math.floor(hrs / 24);
+      if (days < 7) return days + (days === 1 ? " day ago" : " days ago");
+      return then.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    /* ---- award XP / streak / badges when an event is added ---- */
+    function recordEvent(ev) {
+      let gained = 10;
+      if (ev.description) gained += 5;
+      if (ev.repeatType && ev.repeatType !== "none") gained += 5;
+
+      // streak: consecutive calendar days
+      const today = todayKey();
+      if (state.lastDay !== today) {
+        const yesterday = (() => {
+          const d = new Date(); d.setDate(d.getDate() - 1);
+          return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+        })();
+        if (state.lastDay === yesterday) state.streak += 1;
+        else state.streak = 1;
+        state.lastDay = today;
+      } else if (state.streak === 0) {
+        state.streak = 1;
+        state.lastDay = today;
+      }
+
+      state.xp += gained;
+      state.total += 1;
+      state.history.unshift({
+        title: ev.title,
+        emoji: ev.emoji,
+        date: ev.dateStr,
+        at: new Date().toISOString()
+      });
+      if (state.history.length > 50) state.history.length = 50;
+
+      // badges
+      const newBadges = [];
+      function grant(id) { if (!state.badges.includes(id)) { state.badges.push(id); newBadges.push(id); } }
+      grant("first");
+      if (state.streak >= 3) grant("streak3");
+      if (/homework|study|assignment|read/i.test(ev.title)) grant("study");
+      if (ev.repeatType && ev.repeatType !== "none") grant("repeat");
+      if (state.total >= 10) grant("ten");
+      if (state.total >= 25) grant("legend");
+
+      const beforeLevel = levelFor(state.xp - gained).idx;
+      const afterLevel = levelFor(state.xp).idx;
+      const leveledUp = afterLevel > beforeLevel;
+
+      saveState();
+      renderGame();
+
+      // celebrate
+      celebrate();
+      let msg = "🎉 +" + gained + " XP! Event added.";
+      if (leveledUp) msg = "🚀 LEVEL UP! You’re now a " + LEVELS[afterLevel].name + "! +" + gained + " XP";
+      else if (newBadges.length) {
+        const b = BADGES.find(x => x.id === newBadges[0]);
+        msg = b.emoji + " New badge: " + b.title.split(" — ")[0] + "! +" + gained + " XP";
+      }
+      showToast(msg);
+    }
+
+    /* ============================================================
+       TOAST + CONFETTI
+       ============================================================ */
+    const toastEl = document.getElementById("toast");
+    let toastTimer = null;
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3800);
+    }
+
+    const confettiCanvas = document.getElementById("confetti");
+    const cctx = confettiCanvas.getContext("2d");
+    let confettiPieces = [];
+    let confettiRAF = null;
+
+    function sizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", sizeCanvas);
+    sizeCanvas();
+
+    function celebrate() {
+      const colors = ["#c573ff", "#ffd166", "#0b8043", "#ff6bb5", "#4dd2ff", "#ffe9a8"];
+      for (let i = 0; i < 120; i++) {
+        confettiPieces.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 3,
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * -12 - 4,
+          g: 0.3 + Math.random() * 0.2,
+          size: 5 + Math.random() * 7,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * 6.28,
+          vr: (Math.random() - 0.5) * 0.4,
+          life: 0
+        });
+      }
+      if (!confettiRAF) tickConfetti();
+    }
+
+    function tickConfetti() {
+      cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiPieces.forEach(p => {
+        p.vy += p.g;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.life += 1;
+        cctx.save();
+        cctx.translate(p.x, p.y);
+        cctx.rotate(p.rot);
+        cctx.fillStyle = p.color;
+        cctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        cctx.restore();
+      });
+      confettiPieces = confettiPieces.filter(p => p.y < confettiCanvas.height + 40 && p.life < 240);
+      if (confettiPieces.length) {
+        confettiRAF = requestAnimationFrame(tickConfetti);
+      } else {
+        cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiRAF = null;
+      }
+    }
+
+    /* ============================================================
+       FRIENDLY VALIDATION (no harsh alerts)
+       ============================================================ */
+    function setError(groupId, on) {
+      const g = document.getElementById(groupId);
+      if (!g) return;
+      g.classList.toggle("field-error", on);
+      if (on) { g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake"); }
+    }
+
+    function clearErrors() {
+      ["fg-title", "fg-date", "fg-start"].forEach(id => {
+        const g = document.getElementById(id);
+        if (g) g.classList.remove("field-error");
+      });
+    }
+
+    /* ============================================================
+       ORIGINAL CALENDAR LOGIC (preserved)
+       ============================================================ */
     function formatDateForCard(dateStr) {
       if (!dateStr) return "Date: (not set)";
       const date = new Date(dateStr + "T00:00:00");
@@ -471,6 +962,7 @@
       if (t.includes("practice")) return "💪";
       if (t.includes("game") || t.includes("match")) return "🎮";
       if (t.includes("birthday") || t.includes("party")) return "🎉";
+      if (t.includes("doctor") || t.includes("dentist") || t.includes("appointment")) return "🩺";
       return "⭐";
     }
 
@@ -487,8 +979,12 @@
       let repeatCount = repeatCountInput.value.trim();
       const emailsRaw = emailsInput.value.trim();
 
+      clearErrors();
       if (!title || !dateStr || !startTime) {
-        alert("S.A.R.A.H. says: I need at least a title, a date, and a start time. 🌸");
+        setError("fg-title", !title);
+        setError("fg-date", !dateStr);
+        setError("fg-start", !startTime);
+        showToast("S.A.R.A.H. needs a name, a day, and a start time. 🌸");
         return null;
       }
 
@@ -507,11 +1003,7 @@
 
       if (repeatType !== "none") {
         let n = parseInt(repeatCount, 10);
-        if (isNaN(n) || n < 2) {
-          // gentle auto-fix
-          n = 4;
-          repeatCountInput.value = "4";
-        }
+        if (isNaN(n) || n < 2) { n = 4; repeatCountInput.value = "4"; }
         repeatCount = n;
       } else {
         repeatCount = null;
@@ -527,13 +1019,8 @@
         ? "Location: " + [locationName, address].filter(Boolean).join(" – ")
         : "Location: (not set yet)";
 
-      const whoLine = who
-        ? "Who’s going: " + who
-        : "Who’s going: (you can add this later)";
-
-      const whatLine = description
-        ? "What it is: " + description
-        : "What it is: (you can describe it later)";
+      const whoLine = who ? "Who’s going: " + who : "Who’s going: (you can add this later)";
+      const whatLine = description ? "What it is: " + description : "What it is: (you can describe it later)";
 
       let repeatLine = "";
       if (repeatType === "daily")    repeatLine = "Repeats: every day";
@@ -545,7 +1032,6 @@
 
       const noteLine = "Tip: Plan to be there 5–10 minutes early so it feels calm. 🕒";
 
-      // Mood + encouragement
       cardPreview.classList.remove(...moods);
       const mood = moods[Math.floor(Math.random() * moods.length)];
       cardPreview.classList.add(mood);
@@ -553,42 +1039,28 @@
       const encour = encouragements[Math.floor(Math.random() * encouragements.length)];
       const quote = quotes[Math.floor(Math.random() * quotes.length)];
 
-      cardTitle.textContent   = emoji + " " + title;
-      cardDate.textContent    = formattedDate;
-      cardTime.textContent    = timeLine;
-      cardLocation.textContent= locationLine;
-      cardWho.textContent     = whoLine;
-      cardWhat.textContent    = whatLine + (repeatLine ? " · " + repeatLine : "");
-      cardNote.textContent    = noteLine;
+      cardTitle.textContent    = emoji + " " + title;
+      cardDate.textContent     = formattedDate;
+      cardTime.textContent     = timeLine;
+      cardLocation.textContent = locationLine;
+      cardWho.textContent      = whoLine;
+      cardWhat.textContent     = whatLine + (repeatLine ? " · " + repeatLine : "");
+      cardNote.textContent     = noteLine;
 
       cardPreview.classList.remove("hidden");
       encouragementBox.classList.remove("hidden");
       encouragementText.textContent = encour;
       quoteText.textContent = quote;
 
-      // parse guest emails (optional)
       let guestEmails = [];
       if (emailsRaw) {
-        guestEmails = emailsRaw
-          .split(",")
-          .map(e => e.trim())
-          .filter(e => e.includes("@"));
+        guestEmails = emailsRaw.split(",").map(e => e.trim()).filter(e => e.includes("@"));
       }
 
       currentEvent = {
-        title,
-        emoji,
-        who,
-        dateStr,
-        startTime,
-        endTime,
-        locationName,
-        address,
-        description,
-        repeatType,
-        repeatCount,
-        noteLine,
-        guestEmails
+        title, emoji, who, dateStr, startTime, endTime,
+        locationName, address, description, repeatType, repeatCount,
+        noteLine, guestEmails
       };
 
       return currentEvent;
@@ -605,16 +1077,13 @@
       if (!ev.repeatType || ev.repeatType === "none") return "";
       let freq = "DAILY";
       let extra = "";
-
       if (ev.repeatType === "daily")   freq = "DAILY";
       if (ev.repeatType === "weekly")  freq = "WEEKLY";
       if (ev.repeatType === "biweekly"){ freq = "WEEKLY"; extra = ";INTERVAL=2"; }
       if (ev.repeatType === "monthly") freq = "MONTHLY";
       if (ev.repeatType === "yearly")  freq = "YEARLY";
-
       let count = ev.repeatCount || 4;
       if (count < 2) count = 2;
-
       return "RRULE:FREQ=" + freq + extra + ";COUNT=" + count;
     }
 
@@ -625,7 +1094,7 @@
       const start = toGCalDateTime(ev.dateStr, ev.startTime);
       const end = toGCalDateTime(ev.dateStr, ev.endTime || ev.startTime);
       if (!start || !end) {
-        alert("S.A.R.A.H. couldn’t figure out the time. Double-check it and try again. ⏰");
+        showToast("S.A.R.A.H. couldn’t read the time. Double-check it. ⏰");
         return;
       }
 
@@ -647,55 +1116,115 @@
         "location=" + encodeURIComponent(locationFull),
         "dates=" + encodeURIComponent(start + "/" + end)
       ];
-
-      if (recurRule) {
-        params.push("recur=" + encodeURIComponent(recurRule));
-      }
-
+      if (recurRule) params.push("recur=" + encodeURIComponent(recurRule));
       if (ev.guestEmails && ev.guestEmails.length > 0) {
-        const addParam = ev.guestEmails.join(",");
-        params.push("add=" + encodeURIComponent(addParam));
+        params.push("add=" + encodeURIComponent(ev.guestEmails.join(",")));
       }
 
       const url = base + "&" + params.join("&");
+
+      // reward + log BEFORE opening so the celebration is seen
+      recordEvent(ev);
       window.open(url, "_blank");
     }
 
-    function fillDemo() {
-      titleInput.value = "Math Homework";
-      emojiSelect.value = "📚";
-      whoInput.value = "Me";
+    /* ============================================================
+       QUICK TEMPLATES
+       ============================================================ */
+    const TEMPLATES = [
+      { label: "📚 Homework", title: "Math Homework", emoji: "📚", start: "18:00", end: "18:45", loc: "Kitchen Table", desc: "Focused homework time so it’s done before bed.", repeat: "daily", count: "5" },
+      { label: "⚾ Practice", title: "Baseball Practice", emoji: "⚾", start: "16:30", end: "18:00", loc: "Field", desc: "Sports practice — bring water and gear.", repeat: "weekly", count: "8" },
+      { label: "🎶 Choir", title: "Choir Rehearsal", emoji: "🎶", start: "15:30", end: "16:30", loc: "School Music Room", desc: "Choir rehearsal after school.", repeat: "weekly", count: "6" },
+      { label: "🩺 Appointment", title: "Doctor Appointment", emoji: "🩺", start: "10:00", end: "10:45", loc: "Clinic", desc: "Check-up appointment.", repeat: "none", count: "" },
+      { label: "🎉 Birthday", title: "Birthday Party", emoji: "🎉", start: "14:00", end: "16:00", loc: "", desc: "Birthday party — bring a gift!", repeat: "yearly", count: "3" }
+    ];
 
+    function applyTemplate(t) {
+      titleInput.value = t.title;
+      emojiSelect.value = t.emoji;
       const today = new Date();
-      const iso = today.toISOString().split("T")[0];
-      dateInput.value = iso;
-
-      startTimeInput.value = "18:00";
-      endTimeInput.value   = "18:45";
-      locationNameInput.value = "Kitchen Table";
-      addressInput.value      = "";
-
-      descriptionInput.value  = "This is my focused math homework time so I can get it done before bed.";
-      repeatTypeSelect.value  = "daily";
-      repeatCountInput.value  = "5";
-
-      emailsInput.value = "Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com";
-
+      dateInput.value = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+      startTimeInput.value = t.start;
+      endTimeInput.value = t.end;
+      locationNameInput.value = t.loc;
+      descriptionInput.value = t.desc;
+      repeatTypeSelect.value = t.repeat;
+      repeatCountInput.value = t.count;
+      repeatTypeSelect.dispatchEvent(new Event("change"));
       buildPreviewAndStoreEvent();
+      titleInput.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
-    // hide count if "just this one"
+    function renderTemplates() {
+      const row = document.getElementById("chipRow");
+      row.innerHTML = "";
+      TEMPLATES.forEach(t => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip";
+        b.textContent = t.label;
+        b.addEventListener("click", () => applyTemplate(t));
+        row.appendChild(b);
+      });
+    }
+
+    /* ============================================================
+       DEMO + CLEAR
+       ============================================================ */
+    function fillDemo() {
+      applyTemplate(TEMPLATES[0]);
+    }
+
+    function clearForm() {
+      titleInput.value = "";
+      emojiSelect.value = "";
+      whoInput.value = "";
+      dateInput.value = "";
+      startTimeInput.value = "";
+      endTimeInput.value = "";
+      locationNameInput.value = "";
+      addressInput.value = "";
+      descriptionInput.value = "";
+      repeatTypeSelect.value = "none";
+      repeatCountInput.value = "";
+      emailsInput.value = "Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com";
+      repeatTypeSelect.dispatchEvent(new Event("change"));
+      clearErrors();
+      cardPreview.classList.add("hidden");
+      encouragementBox.classList.add("hidden");
+    }
+
+    /* ============================================================
+       WIRE-UP
+       ============================================================ */
     repeatTypeSelect.addEventListener("change", () => {
-      if (repeatTypeSelect.value === "none") {
-        repeatCountGroup.style.opacity = "0.3";
-      } else {
-        repeatCountGroup.style.opacity = "1";
-      }
+      repeatCountGroup.style.opacity = repeatTypeSelect.value === "none" ? "0.3" : "1";
     });
     repeatTypeSelect.dispatchEvent(new Event("change"));
 
     gcalBtn.addEventListener("click", addToGoogleCalendar);
     demoBtn.addEventListener("click", fillDemo);
+    clearBtn.addEventListener("click", clearForm);
+
+    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+      if (confirm("Clear the activity log? Your level and badges stay — just the list goes away.")) {
+        state.history = [];
+        saveState();
+        renderHistory();
+      }
+    });
+
+    // live preview as you type the basics
+    [titleInput, dateInput, startTimeInput].forEach(el => {
+      el.addEventListener("input", () => {
+        if (titleInput.value.trim() && dateInput.value && startTimeInput.value) {
+          buildPreviewAndStoreEvent();
+        }
+      });
+    });
+
+    renderTemplates();
+    renderGame();
   </script>
 </body>
 </html>
