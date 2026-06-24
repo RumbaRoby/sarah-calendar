@@ -9,20 +9,31 @@
     * { box-sizing: border-box; }
 
     :root {
-      --purple: #c573ff;
-      --deep-purple: #7a267b;
-      --green: #0b8043;
+      /* themed variables — overwritten by applyTheme() */
+      --bg-grad: linear-gradient(160deg, #fdf7ff 0%, #f3ecff 100%);
+      --pill-bg: #ffe9ff;
+      --pill-fg: #7a267b;
+      --gamebar-grad: linear-gradient(135deg, #7a267b 0%, #c573ff 100%);
+      --accent: #c573ff;
+      --accent-deep: #7a267b;
+      --primary: #0b8043;
+      --primary-shadow: rgba(11,128,67,0.35);
+      --chip-bg: #faf5ff;
+      --chip-border: #e6d4ff;
+      --chip-text: #5b4ea3;
     }
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(160deg, #fdf7ff 0%, #f3ecff 100%);
+      background: var(--bg-grad);
+      background-attachment: fixed;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
+      transition: background 0.4s ease;
     }
 
     .app {
@@ -32,308 +43,174 @@
       background: #ffffff;
       border-radius: 18px;
       padding: 18px 16px 24px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     }
 
-    h1 {
-      margin-top: 0;
-      font-size: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
+    h1 { margin-top: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.4rem; }
     h1 span { font-size: 1.8rem; }
 
-    .subtitle {
-      font-size: 0.92rem;
-      color: #666;
-      margin-bottom: 12px;
-    }
+    .subtitle { font-size: 0.92rem; color: #666; margin-bottom: 12px; }
 
     .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #ffe9ff;
-      color: var(--deep-purple);
-      font-size: 0.8rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      margin-bottom: 10px;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--pill-bg); color: var(--pill-fg);
+      font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+    }
+
+    /* ---------- PROFILE BAR ---------- */
+    .profilebar {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .who-label { font-size: 0.82rem; font-weight: 700; color: var(--accent-deep); }
+    .avatars { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+    .avatar {
+      display: inline-flex; flex-direction: column; align-items: center;
+      gap: 1px; border: 2px solid transparent; background: #f6f0ff;
+      border-radius: 14px; padding: 5px 9px; cursor: pointer;
+      font-size: 0.7rem; font-weight: 600; color: #5b4ea3;
+      transition: transform 0.1s ease, border 0.15s ease;
+    }
+    .avatar .face { font-size: 1.4rem; }
+    .avatar:active { transform: scale(0.94); }
+    .avatar.active { border-color: var(--accent); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .icon-toggle {
+      background: #f4f0ff; border: none; border-radius: 50%;
+      width: 38px; height: 38px; font-size: 1.1rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
     }
 
     /* ---------- GAME BAR ---------- */
     .gamebar {
-      background: linear-gradient(135deg, #7a267b 0%, #c573ff 100%);
-      color: #fff;
-      border-radius: 16px;
-      padding: 12px 14px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 14px rgba(122,38,123,0.3);
+      background: var(--gamebar-grad);
+      color: #fff; border-radius: 16px; padding: 12px 14px; margin-bottom: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
     }
-
     .gamebar-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
     }
-
     .stat {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      background: rgba(255,255,255,0.18);
-      padding: 4px 10px;
-      border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.85rem; font-weight: 600;
+      background: rgba(255,255,255,0.18); padding: 4px 10px; border-radius: 999px;
     }
-
     .stat .big { font-size: 1.05rem; }
-
-    .level-name {
-      font-size: 0.95rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .xpbar-track {
-      height: 12px;
-      background: rgba(255,255,255,0.25);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
+    .level-name { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .xpbar-track { height: 12px; background: rgba(255,255,255,0.25); border-radius: 999px; overflow: hidden; }
     .xpbar-fill {
-      height: 100%;
-      width: 0%;
+      height: 100%; width: 0%;
       background: linear-gradient(90deg, #ffe9a8, #ffd166);
-      border-radius: 999px;
-      transition: width 0.6s cubic-bezier(.2,.9,.3,1);
+      border-radius: 999px; transition: width 0.6s cubic-bezier(.2,.9,.3,1);
     }
-
-    .xptext {
-      font-size: 0.72rem;
-      margin-top: 4px;
-      opacity: 0.95;
-      text-align: right;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
+    .xptext { font-size: 0.72rem; margin-top: 4px; opacity: 0.95; text-align: right; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
     .badge {
-      font-size: 1.15rem;
-      width: 30px;
-      height: 30px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      cursor: help;
+      font-size: 1.15rem; width: 30px; height: 30px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(255,255,255,0.15); cursor: help;
       transition: transform 0.15s ease;
     }
-
     .badge.locked { filter: grayscale(1); opacity: 0.35; }
     .badge.earned { background: rgba(255,255,255,0.35); }
     .badge.earned:hover { transform: scale(1.2) rotate(-6deg); }
 
-    /* ---------- QUICK TEMPLATES ---------- */
-    .templates {
-      margin-bottom: 14px;
+    /* ---------- LEADERBOARD ---------- */
+    .leaderboard {
+      display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;
+      font-size: 0.78rem;
     }
-    .templates-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--deep-purple);
-      margin-bottom: 6px;
+    .lb-item {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #fbf6ff; border: 1px solid #efe2ff; border-radius: 999px;
+      padding: 4px 10px; font-weight: 600; color: #5b4ea3;
     }
+    .lb-item.leader { background: #fff5d6; border-color: #ffd86b; color: #8a6d00; }
+    .lb-rank { opacity: 0.7; }
+
+    /* ---------- SECTION LABELS / CHIPS ---------- */
+    .section { margin-bottom: 14px; }
+    .section-label { font-size: 0.8rem; font-weight: 700; color: var(--accent-deep); margin-bottom: 6px; }
     .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip {
-      border: 1px solid #e6d4ff;
-      background: #faf5ff;
-      color: #5b4ea3;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.08s ease, background 0.15s ease;
+      border: 1px solid var(--chip-border); background: var(--chip-bg); color: var(--chip-text);
+      border-radius: 999px; padding: 6px 12px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: transform 0.08s ease, background 0.15s ease;
     }
-    .chip:hover { background: #f1e6ff; }
+    .chip:hover { filter: brightness(0.97); }
     .chip:active { transform: scale(0.95); }
+    .chip.locked { opacity: 0.5; cursor: not-allowed; }
+    .chip.theme-active { outline: 2px solid var(--accent); outline-offset: 1px; }
 
     form { margin-top: 8px; }
-
     .field-group { margin-bottom: 12px; }
+    label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 3px; }
+    .hint { font-size: 0.75rem; color: #777; margin-bottom: 3px; }
 
-    label {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin-bottom: 3px;
+    input[type="text"], input[type="date"], input[type="time"],
+    textarea, select, input[type="number"] {
+      width: 100%; padding: 9px 11px; border-radius: 10px; border: 1px solid #ddd;
+      font-size: 0.95rem; outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease; background-color: #fdfbff;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 2px rgba(197,115,255,0.25); background-color: #fff;
     }
 
-    .hint {
-      font-size: 0.75rem;
-      color: #777;
-      margin-bottom: 3px;
+    .input-with-mic { display: flex; gap: 6px; align-items: stretch; }
+    .input-with-mic input, .input-with-mic textarea { flex: 1; }
+    .mic-btn {
+      flex: 0 0 auto; width: 44px; border-radius: 10px; border: 1px solid var(--chip-border);
+      background: var(--chip-bg); font-size: 1.1rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
     }
+    .mic-btn.listening { background: #ffe0e0; border-color: #ff9aa2; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,107,138,0.5);} 50% { box-shadow: 0 0 0 6px rgba(255,107,138,0);} }
 
-    input[type="text"],
-    input[type="date"],
-    input[type="time"],
-    textarea,
-    select,
-    input[type="number"] {
-      width: 100%;
-      padding: 9px 11px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border 0.15s ease, box-shadow 0.15s ease;
-      background-color: #fdfbff;
-    }
-
-    input:focus,
-    textarea:focus,
-    select:focus {
-      border-color: var(--purple);
-      box-shadow: 0 0 0 2px rgba(197,115,255,0.25);
-      background-color: #ffffff;
-    }
-
-    .field-error input,
-    .field-error select {
-      border-color: #ff6b8a;
-      box-shadow: 0 0 0 2px rgba(255,107,138,0.2);
-    }
-
-    .field-msg {
-      font-size: 0.74rem;
-      color: #d6336c;
-      margin-top: 3px;
-      display: none;
-    }
+    .field-error input, .field-error select { border-color: #ff6b8a; box-shadow: 0 0 0 2px rgba(255,107,138,0.2); }
+    .field-msg { font-size: 0.74rem; color: #d6336c; margin-top: 3px; display: none; }
     .field-error .field-msg { display: block; }
 
     .shake { animation: shake 0.35s; }
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      20% { transform: translateX(-6px); }
-      40% { transform: translateX(6px); }
-      60% { transform: translateX(-4px); }
-      80% { transform: translateX(4px); }
-    }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
 
-    textarea {
-      min-height: 60px;
-      resize: vertical;
-    }
-
+    textarea { min-height: 60px; resize: vertical; }
     .row { display: flex; gap: 10px; }
     .row > div { flex: 1; }
 
-    .btn-row {
-      margin-top: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
+    .btn-row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
     button {
-      border-radius: 999px;
-      border: none;
-      padding: 11px 18px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      border-radius: 999px; border: none; padding: 11px 18px;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
       transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
     }
-
     button:active { transform: translateY(1px); box-shadow: none; }
-
     .btn-primary {
-      background: var(--green);
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(11,128,67,0.35);
-      flex: 1;
-      min-width: 200px;
-      justify-content: center;
+      background: var(--primary); color: #fff; box-shadow: 0 4px 10px var(--primary-shadow);
+      flex: 1; min-width: 200px; justify-content: center; font-size: 1.05rem; padding: 13px 18px;
+    }
+    .btn-secondary { background: #f4f0ff; color: #5b4ea3; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+
+    .dad-note {
+      font-size: 0.76rem; color: var(--accent-deep); background: #f6f0ff;
+      border: 1px dashed var(--chip-border); border-radius: 10px;
+      padding: 6px 10px; margin-top: 6px; display: flex; align-items: center; gap: 6px;
     }
 
-    .btn-secondary {
-      background: #f4f0ff;
-      color: #5b4ea3;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }
-
-    .output-section {
-      margin-top: 18px;
-      border-top: 1px dashed #e5d7ff;
-      padding-top: 14px;
-    }
-
-    .output-section h2 {
-      font-size: 1.1rem;
-      margin: 0 0 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    .output-section { margin-top: 18px; border-top: 1px dashed #e5d7ff; padding-top: 14px; }
+    .output-section h2 { font-size: 1.1rem; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
     .card-preview {
-      border-radius: 14px;
-      padding: 12px 12px 10px;
-      margin-bottom: 8px;
-      background: #fff7ff;
-      border: 1px solid #f1dfff;
-      position: relative;
-      overflow: hidden;
+      border-radius: 14px; padding: 12px 12px 10px; margin-bottom: 8px;
+      background: #fff7ff; border: 1px solid #f1dfff; position: relative; overflow: hidden;
     }
-
-    .card-preview::after {
-      content: "✨";
-      position: absolute;
-      right: 10px;
-      bottom: 6px;
-      opacity: 0.4;
-      font-size: 1.2rem;
-    }
-
+    .card-preview::after { content: "✨"; position: absolute; right: 10px; bottom: 6px; opacity: 0.4; font-size: 1.2rem; }
     .card-title { font-weight: 700; margin-bottom: 4px; font-size: 1rem; }
     .card-line { font-size: 0.9rem; margin-bottom: 2px; }
     .card-note { font-size: 0.82rem; color: #6b5a9c; margin-top: 4px; }
-
-    .card-preview.hidden,
-    .encouragement.hidden { display: none; }
-
-    .encouragement {
-      margin-top: 10px;
-      font-size: 0.88rem;
-      color: #444;
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-    }
-
+    .card-preview.hidden, .encouragement.hidden { display: none; }
+    .encouragement { margin-top: 10px; font-size: 0.88rem; color: #444; display: flex; align-items: flex-start; gap: 6px; }
     .encouragement span.emoji { font-size: 1.1rem; flex-shrink: 0; }
-
     .tiny { font-size: 0.75rem; color: #888; margin-top: 8px; text-align: center; }
     .quote { margin-top: 4px; font-size: 0.78rem; color: #7a6bb4; font-style: italic; }
 
@@ -344,65 +221,32 @@
 
     /* ---------- HISTORY ---------- */
     .history-section { margin-top: 20px; border-top: 1px dashed #e5d7ff; padding-top: 14px; }
-    .history-head {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px;
-    }
+    .history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .history-head h2 { font-size: 1.1rem; margin: 0; }
-    .lastused {
-      font-size: 0.78rem;
-      color: var(--deep-purple);
-      background: #faf3ff;
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
+    .lastused { font-size: 0.78rem; color: var(--accent-deep); background: #faf3ff; padding: 4px 10px; border-radius: 999px; }
     .history-list { list-style: none; padding: 0; margin: 0; }
     .history-item {
-      font-size: 0.85rem;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: #fbf8ff;
-      border: 1px solid #f0e6ff;
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
+      font-size: 0.85rem; padding: 8px 10px; border-radius: 10px;
+      background: #fbf8ff; border: 1px solid #f0e6ff; margin-bottom: 6px;
+      display: flex; justify-content: space-between; gap: 10px;
     }
     .history-item .when { color: #999; font-size: 0.74rem; white-space: nowrap; }
     .history-empty { font-size: 0.82rem; color: #999; font-style: italic; }
-    .link-btn {
-      background: none; border: none; color: #b06bff; font-size: 0.76rem;
-      cursor: pointer; padding: 2px 4px; font-weight: 600;
-    }
+    .link-btn { background: none; border: none; color: var(--accent); font-size: 0.76rem; cursor: pointer; padding: 2px 4px; font-weight: 600; }
 
     /* ---------- TOAST + CONFETTI ---------- */
-    #confetti {
-      position: fixed; inset: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 9998;
-    }
+    #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; }
     .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 24px;
+      position: fixed; left: 50%; bottom: 24px;
       transform: translateX(-50%) translateY(120px);
-      background: #2b2140;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 14px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      z-index: 9999;
-      opacity: 0;
-      transition: transform 0.4s cubic-bezier(.2,.9,.3,1), opacity 0.4s;
-      text-align: center;
-      max-width: 90%;
+      background: #2b2140; color: #fff; padding: 12px 20px; border-radius: 14px;
+      font-size: 0.95rem; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      z-index: 9999; opacity: 0; transition: transform 0.4s cubic-bezier(.2,.9,.3,1), opacity 0.4s;
+      text-align: center; max-width: 90%;
     }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-    @media (max-width: 480px) {
-      .row { flex-direction: column; }
-    }
+    @media (max-width: 480px) { .row { flex-direction: column; } }
   </style>
 </head>
 <body>
@@ -415,8 +259,15 @@
 
     <h1><span>📆</span> Calendar Helper</h1>
     <div class="subtitle">
-      Fill this out like you’re telling a friend what’s happening.
-      Then tap the green button and I’ll open Google Calendar for you. ✨
+      Tell me what’s happening — type it or tap the 🎤 to say it.
+      Then hit the big green button. Everyone stays in the loop. ✨
+    </div>
+
+    <!-- ===== PROFILE BAR ===== -->
+    <div class="profilebar">
+      <div class="who-label">Who’s planning?</div>
+      <div class="avatars" id="avatars"></div>
+      <button class="icon-toggle" id="soundBtn" title="Sound on/off">🔊</button>
     </div>
 
     <!-- ===== GAME BAR ===== -->
@@ -433,17 +284,29 @@
       <div class="badge-row" id="badgeRow"></div>
     </div>
 
+    <!-- ===== LEADERBOARD ===== -->
+    <div class="leaderboard" id="leaderboard"></div>
+
+    <!-- ===== THEME / VIBE PICKER ===== -->
+    <div class="section">
+      <div class="section-label">🎨 Pick your vibe (your skin saves to your profile):</div>
+      <div class="chip-row" id="themeRow"></div>
+    </div>
+
     <!-- ===== QUICK TEMPLATES ===== -->
-    <div class="templates">
-      <div class="templates-label">⚡ Quick start — tap one to fill it in:</div>
+    <div class="section">
+      <div class="section-label">⚡ Quick start — tap one and it fills in for you:</div>
       <div class="chip-row" id="chipRow"></div>
     </div>
 
     <form id="eventForm">
       <div class="field-group" id="fg-title">
         <label for="title">1) What is this?</label>
-        <div class="hint">Example: Choir Rehearsal, Baseball Practice, Math Homework</div>
-        <input type="text" id="title" placeholder="e.g., Math Homework, Choir Rehearsal">
+        <div class="hint">Type it or tap 🎤 to say it. Example: Choir Rehearsal, Baseball Practice</div>
+        <div class="input-with-mic">
+          <input type="text" id="title" placeholder="e.g., Math Homework, Choir Rehearsal">
+          <button type="button" class="mic-btn" id="micTitle" title="Say it">🎤</button>
+        </div>
         <div class="field-msg">Give it a name so we know what it is. 🌸</div>
       </div>
 
@@ -471,24 +334,27 @@
         </div>
       </div>
 
-      <div class="field-group row">
-        <div id="fg-date">
-          <label for="date">2) What day?</label>
-          <input type="date" id="date">
-          <div class="field-msg">Pick a day. 📅</div>
-        </div>
-        <div>
-          <label>3) What time?</label>
-          <div class="row">
-            <div id="fg-start">
-              <div class="hint">Start</div>
-              <input type="time" id="startTime">
-              <div class="field-msg">Pick a start time. ⏰</div>
-            </div>
-            <div>
-              <div class="hint">End (optional)</div>
-              <input type="time" id="endTime">
-            </div>
+      <div class="field-group">
+        <label>2) What day?</label>
+        <div class="hint">Tap a quick day or pick one:</div>
+        <div class="chip-row" id="dateChips" style="margin-bottom:6px;"></div>
+        <input type="date" id="date">
+        <div class="field-msg" id="dateMsg">Pick a day. 📅</div>
+      </div>
+
+      <div class="field-group">
+        <label>3) What time?</label>
+        <div class="hint">Tap a quick time or set your own:</div>
+        <div class="chip-row" id="timeChips" style="margin-bottom:6px;"></div>
+        <div class="row">
+          <div id="fg-start">
+            <div class="hint">Start</div>
+            <input type="time" id="startTime">
+            <div class="field-msg">Pick a start time. ⏰</div>
+          </div>
+          <div>
+            <div class="hint">End (optional)</div>
+            <input type="time" id="endTime">
           </div>
         </div>
       </div>
@@ -507,8 +373,11 @@
 
       <div class="field-group">
         <label for="description">5) What is this for?</label>
-        <div class="hint">Just 1–2 sentences in your own words. (+5 bonus XP for filling this in!)</div>
-        <textarea id="description" placeholder="It’s my math homework time so I can finish before bed."></textarea>
+        <div class="hint">Type or tap 🎤. Just 1–2 sentences. (+5 bonus XP for filling this in!)</div>
+        <div class="input-with-mic">
+          <textarea id="description" placeholder="It’s my math homework time so I can finish before bed."></textarea>
+          <button type="button" class="mic-btn" id="micDesc" title="Say it">🎤</button>
+        </div>
       </div>
 
       <div class="field-group">
@@ -531,38 +400,23 @@
       </div>
 
       <div class="field-group">
-        <label for="emails">7) Who should get the invite emails?</label>
-        <div class="hint">
-          These emails are included by default (you can edit them):
-          Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com
-        </div>
-        <input
-          type="text"
-          id="emails"
-          placeholder="mom@email.com, dad@email.com"
-          value="Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com"
-        >
+        <label for="emails">7) Who else should get the invite email?</label>
+        <div class="hint">Add anyone else (Mom, coaches, etc.). Separate with commas.</div>
+        <input type="text" id="emails" placeholder="mom@email.com, coach@email.com"
+          value="janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com">
+        <div class="dad-note">🔒 📨 Dad (Jeffreylroby@gmail.com) is <b>always</b> added automatically — so he always knows what’s up.</div>
       </div>
 
       <div class="btn-row">
-        <button type="button" class="btn-primary" id="gcalBtn">
-          📲 Add to Google Calendar
-        </button>
-        <button type="button" class="btn-secondary" id="demoBtn">
-          🎲 Fun example
-        </button>
-        <button type="button" class="btn-secondary" id="clearBtn">
-          🧹 Clear
-        </button>
+        <button type="button" class="btn-primary" id="gcalBtn">📲 Add to Google Calendar</button>
+        <button type="button" class="btn-secondary" id="demoBtn">🎲 Example</button>
+        <button type="button" class="btn-secondary" id="clearBtn">🧹 Clear</button>
       </div>
-      <div class="tiny">
-        After you tap the green button, Google Calendar will open. Just check it and hit “Save.” ✅
-      </div>
+      <div class="tiny">After you tap the green button, Google Calendar opens. Just check it and hit “Save.” ✅</div>
     </form>
 
     <div class="output-section">
       <h2>🪪 Quick Preview</h2>
-
       <div id="cardPreview" class="card-preview hidden">
         <div class="card-title" id="cardTitle"></div>
         <div class="card-line" id="cardDate"></div>
@@ -572,7 +426,6 @@
         <div class="card-line" id="cardWhat"></div>
         <div class="card-note" id="cardNote"></div>
       </div>
-
       <div class="encouragement hidden" id="encouragement">
         <span class="emoji">🌟</span>
         <div>
@@ -582,7 +435,6 @@
       </div>
     </div>
 
-    <!-- ===== HISTORY ===== -->
     <div class="history-section">
       <div class="history-head">
         <h2>📜 Activity Log</h2>
@@ -599,49 +451,30 @@
 
   <script>
     /* ============================================================
-       S.A.R.A.H. — element references
+       Element references
        ============================================================ */
-    const titleInput = document.getElementById("title");
-    const emojiSelect = document.getElementById("emoji");
-    const whoInput = document.getElementById("who");
-    const dateInput = document.getElementById("date");
-    const startTimeInput = document.getElementById("startTime");
-    const endTimeInput = document.getElementById("endTime");
-    const locationNameInput = document.getElementById("locationName");
-    const addressInput = document.getElementById("address");
-    const descriptionInput = document.getElementById("description");
-    const repeatTypeSelect = document.getElementById("repeatType");
-    const repeatCountInput = document.getElementById("repeatCount");
-    const repeatCountGroup = document.getElementById("repeatCountGroup");
-    const emailsInput = document.getElementById("emails");
+    const $ = id => document.getElementById(id);
+    const titleInput = $("title"), emojiSelect = $("emoji"), whoInput = $("who");
+    const dateInput = $("date"), startTimeInput = $("startTime"), endTimeInput = $("endTime");
+    const locationNameInput = $("locationName"), addressInput = $("address"), descriptionInput = $("description");
+    const repeatTypeSelect = $("repeatType"), repeatCountInput = $("repeatCount"), repeatCountGroup = $("repeatCountGroup");
+    const emailsInput = $("emails");
+    const gcalBtn = $("gcalBtn"), demoBtn = $("demoBtn"), clearBtn = $("clearBtn");
+    const cardPreview = $("cardPreview"), cardTitle = $("cardTitle"), cardDate = $("cardDate"),
+          cardTime = $("cardTime"), cardLocation = $("cardLocation"), cardWho = $("cardWho"),
+          cardWhat = $("cardWhat"), cardNote = $("cardNote");
+    const encouragementBox = $("encouragement"), encouragementText = $("encouragementText"), quoteText = $("quoteText");
 
-    const gcalBtn = document.getElementById("gcalBtn");
-    const demoBtn = document.getElementById("demoBtn");
-    const clearBtn = document.getElementById("clearBtn");
-
-    const cardPreview = document.getElementById("cardPreview");
-    const cardTitle = document.getElementById("cardTitle");
-    const cardDate = document.getElementById("cardDate");
-    const cardTime = document.getElementById("cardTime");
-    const cardLocation = document.getElementById("cardLocation");
-    const cardWho = document.getElementById("cardWho");
-    const cardWhat = document.getElementById("cardWhat");
-    const cardNote = document.getElementById("cardNote");
-
-    const encouragementBox = document.getElementById("encouragement");
-    const encouragementText = document.getElementById("encouragementText");
-    const quoteText = document.getElementById("quoteText");
+    const DAD_EMAIL = "Jeffreylroby@gmail.com"; // always notified — the whole point
 
     const moods = ["mood-softpink", "mood-sunrise", "mood-ocean", "mood-mint"];
-
     const encouragements = [
       "Nice planning! Future-you is already saying thank you. 💜",
       "This is how leaders think: one clear step at a time. 🌟",
       "You’re turning chaos into a game plan. Very pro of you. 🎮",
       "Little organized moments like this make big days smoother. ✨",
-      "Somewhere out there, a stressed parent just felt a tiny bit better. 🧠"
+      "Boom — Dad’s in the loop and you scored points. 🧠"
     ];
-
     const quotes = [
       "“The secret of getting ahead is getting started.” – Mark Twain",
       "“Step by step and the thing is done.” – Charles Atlas",
@@ -653,17 +486,61 @@
     let currentEvent = null;
 
     /* ============================================================
-       GAME STATE (saved in the browser via localStorage)
+       THEMES / SKINS
        ============================================================ */
-    const STORE_KEY = "sarah_game_v1";
+    const THEMES = {
+      blossom: { label: "🌸 Blossom", unlock: 0, vars: {
+        "--bg-grad":"linear-gradient(160deg,#fdf7ff,#f3ecff)","--pill-bg":"#ffe9ff","--pill-fg":"#7a267b",
+        "--gamebar-grad":"linear-gradient(135deg,#7a267b,#c573ff)","--accent":"#c573ff","--accent-deep":"#7a267b",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#faf5ff","--chip-border":"#e6d4ff","--chip-text":"#5b4ea3" } },
+      ocean: { label: "🌊 Ocean", unlock: 0, vars: {
+        "--bg-grad":"linear-gradient(160deg,#e6f7ff,#cfeeff)","--pill-bg":"#d4f0ff","--pill-fg":"#0a5e8a",
+        "--gamebar-grad":"linear-gradient(135deg,#0a5e8a,#33b5e5)","--accent":"#33b5e5","--accent-deep":"#0a5e8a",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#eef9ff","--chip-border":"#bfe6f7","--chip-text":"#0a5e8a" } },
+      slime: { label: "🟢 Slime", unlock: 0, vars: {
+        "--bg-grad":"linear-gradient(160deg,#eaffe6,#d6ffce)","--pill-bg":"#d8ffcb","--pill-fg":"#2e7d12",
+        "--gamebar-grad":"linear-gradient(135deg,#2e7d12,#7ed321)","--accent":"#7ed321","--accent-deep":"#2e7d12",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#f0ffe9","--chip-border":"#cdeeb8","--chip-text":"#3a7d12" } },
+      sunset: { label: "🌅 Sunset", unlock: 0, vars: {
+        "--bg-grad":"linear-gradient(160deg,#fff0e6,#ffe0d6)","--pill-bg":"#ffe0cc","--pill-fg":"#b5471a",
+        "--gamebar-grad":"linear-gradient(135deg,#ff7e5f,#feb47b)","--accent":"#ff7e5f","--accent-deep":"#b5471a",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff3ec","--chip-border":"#ffd6c2","--chip-text":"#b5471a" } },
+      unicorn: { label: "🦄 Unicorn", unlock: 2, vars: {
+        "--bg-grad":"linear-gradient(160deg,#fff0fb,#e9f0ff)","--pill-bg":"#ffe3fb","--pill-fg":"#8a2be2",
+        "--gamebar-grad":"linear-gradient(135deg,#ff9ed8,#a18bff,#7ad1ff)","--accent":"#c46bff","--accent-deep":"#8a2be2",
+        "--primary":"#d6336c","--primary-shadow":"rgba(214,51,108,0.35)","--chip-bg":"#fff0fb","--chip-border":"#f3d4ff","--chip-text":"#8a2be2" } },
+      sporty: { label: "🏀 Sporty", unlock: 2, vars: {
+        "--bg-grad":"linear-gradient(160deg,#fff4e6,#ffe9d6)","--pill-bg":"#ffe0b3","--pill-fg":"#b8430f",
+        "--gamebar-grad":"linear-gradient(135deg,#1a1a1a,#e8590c)","--accent":"#e8590c","--accent-deep":"#b8430f",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff3e6","--chip-border":"#ffd2a8","--chip-text":"#b8430f" } },
+      galaxy: { label: "🚀 Galaxy", unlock: 3, vars: {
+        "--bg-grad":"linear-gradient(160deg,#0f1024,#241b46)","--pill-bg":"#2a2350","--pill-fg":"#c9b8ff",
+        "--gamebar-grad":"linear-gradient(135deg,#3a1c71,#7b2ff7,#3a8dff)","--accent":"#9a86ff","--accent-deep":"#c9b8ff",
+        "--primary":"#12b886","--primary-shadow":"rgba(18,184,134,0.4)","--chip-bg":"#f3f0ff","--chip-border":"#d9cfff","--chip-text":"#5a3fb8" } },
+      kitty: { label: "🐱 Kitty", unlock: 4, vars: {
+        "--bg-grad":"linear-gradient(160deg,#fff5f0,#ffe9ef)","--pill-bg":"#ffe0e6","--pill-fg":"#c2185b",
+        "--gamebar-grad":"linear-gradient(135deg,#ff8fab,#ffb3c6)","--accent":"#ff7aa2","--accent-deep":"#c2185b",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff2f5","--chip-border":"#ffd4dd","--chip-text":"#c2185b" } }
+    };
+
+    function applyTheme(key) {
+      const t = THEMES[key] || THEMES.blossom;
+      const root = document.documentElement;
+      Object.entries(t.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+    }
+
+    /* ============================================================
+       GAME STATE — multi-profile, saved in the browser
+       ============================================================ */
+    const STORE_KEY = "sarah_game_v2";
 
     const LEVELS = [
-      { min: 0,   emoji: "🌱", name: "Sprout Planner" },
-      { min: 100, emoji: "🌿", name: "Growing Planner" },
-      { min: 250, emoji: "🌸", name: "Blooming Planner" },
-      { min: 500, emoji: "⭐", name: "Star Planner" },
-      { min: 900, emoji: "🚀", name: "Rocket Planner" },
-      { min: 1500,emoji: "👑", name: "Legendary Planner" }
+      { min: 0,    emoji: "🌱", name: "Sprout Planner" },
+      { min: 100,  emoji: "🌿", name: "Growing Planner" },
+      { min: 250,  emoji: "🌸", name: "Blooming Planner" },
+      { min: 500,  emoji: "⭐", name: "Star Planner" },
+      { min: 900,  emoji: "🚀", name: "Rocket Planner" },
+      { min: 1500, emoji: "👑", name: "Legendary Planner" }
     ];
 
     const BADGES = [
@@ -675,8 +552,21 @@
       { id: "legend",  emoji: "🏆", title: "Legend — planned 25 events" }
     ];
 
+    function newProfile(name, face, theme) {
+      return { name, face, theme: theme || "blossom", xp: 0, total: 0, streak: 0, lastDay: null, badges: [], history: [] };
+    }
+
     function defaultState() {
-      return { xp: 0, total: 0, streak: 0, lastDay: null, badges: [], history: [] };
+      return {
+        soundOn: true,
+        activeId: "kyleigh",
+        profiles: {
+          kyleigh: newProfile("Kyleigh", "👧", "unicorn"),
+          ashley:  newProfile("Ashley", "🧒", "ocean"),
+          mom:     newProfile("Mom", "👩", "sunset"),
+          dad:     newProfile("Dad", "👨", "galaxy")
+        }
+      };
     }
 
     function loadState() {
@@ -684,98 +574,130 @@
         const raw = localStorage.getItem(STORE_KEY);
         if (!raw) return defaultState();
         const s = JSON.parse(raw);
-        return Object.assign(defaultState(), s);
-      } catch (e) {
-        return defaultState();
-      }
+        const base = defaultState();
+        return { soundOn: s.soundOn !== false, activeId: s.activeId || base.activeId,
+                 profiles: Object.assign(base.profiles, s.profiles || {}) };
+      } catch (e) { return defaultState(); }
     }
 
-    function saveState() {
-      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
-    }
+    function saveState() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
 
     let state = loadState();
+    const profile = () => state.profiles[state.activeId];
 
     function todayKey() {
       const d = new Date();
-      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
     }
 
     function levelFor(xp) {
       let lvl = LEVELS[0], idx = 0;
-      for (let i = 0; i < LEVELS.length; i++) {
-        if (xp >= LEVELS[i].min) { lvl = LEVELS[i]; idx = i; }
-      }
-      const next = LEVELS[idx + 1] || null;
-      return { lvl, idx, next };
+      for (let i = 0; i < LEVELS.length; i++) if (xp >= LEVELS[i].min) { lvl = LEVELS[i]; idx = i; }
+      return { lvl, idx, next: LEVELS[idx + 1] || null };
+    }
+
+    /* ---------- RENDERERS ---------- */
+    function renderProfiles() {
+      const wrap = $("avatars");
+      wrap.innerHTML = "";
+      Object.entries(state.profiles).forEach(([id, p]) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "avatar" + (id === state.activeId ? " active" : "");
+        b.innerHTML = '<span class="face">' + p.face + '</span><span>' + p.name + '</span>';
+        b.addEventListener("click", () => {
+          state.activeId = id; saveState();
+          applyTheme(profile().theme);
+          sfx("pop"); renderAll();
+        });
+        wrap.appendChild(b);
+      });
+      $("soundBtn").textContent = state.soundOn ? "🔊" : "🔈";
     }
 
     function renderGame() {
-      const { lvl, idx, next } = levelFor(state.xp);
-      document.getElementById("levelEmoji").textContent = lvl.emoji;
-      document.getElementById("levelName").textContent = lvl.name;
-      document.getElementById("levelNum").textContent = idx + 1;
-      document.getElementById("streakNum").textContent = state.streak;
-      document.getElementById("totalNum").textContent = state.total;
+      const p = profile();
+      const { lvl, idx, next } = levelFor(p.xp);
+      $("levelEmoji").textContent = lvl.emoji;
+      $("levelName").textContent = lvl.name;
+      $("levelNum").textContent = idx + 1;
+      $("streakNum").textContent = p.streak;
+      $("totalNum").textContent = p.total;
 
-      const floor = lvl.min;
-      const ceil = next ? next.min : lvl.min + 100;
-      const pct = next ? Math.min(100, Math.round(((state.xp - floor) / (ceil - floor)) * 100)) : 100;
-      document.getElementById("xpFill").style.width = pct + "%";
-      document.getElementById("xpText").textContent = next
-        ? state.xp + " / " + ceil + " XP — " + (ceil - state.xp) + " to level up!"
-        : state.xp + " XP — MAX LEVEL! 👑";
+      const floor = lvl.min, ceil = next ? next.min : lvl.min + 100;
+      const pct = next ? Math.min(100, Math.round(((p.xp - floor) / (ceil - floor)) * 100)) : 100;
+      $("xpFill").style.width = pct + "%";
+      $("xpText").textContent = next ? p.xp + " / " + ceil + " XP — " + (ceil - p.xp) + " to level up!" : p.xp + " XP — MAX LEVEL! 👑";
 
-      const row = document.getElementById("badgeRow");
-      row.innerHTML = "";
+      const row = $("badgeRow"); row.innerHTML = "";
       BADGES.forEach(b => {
         const el = document.createElement("span");
-        const earned = state.badges.includes(b.id);
+        const earned = p.badges.includes(b.id);
         el.className = "badge " + (earned ? "earned" : "locked");
         el.textContent = b.emoji;
         el.title = earned ? b.title : "🔒 Locked — " + b.title;
         row.appendChild(el);
       });
+    }
 
-      renderHistory();
+    function renderLeaderboard() {
+      const lb = $("leaderboard"); lb.innerHTML = "";
+      const ranked = Object.entries(state.profiles).map(([id, p]) => ({ id, p }))
+        .sort((a, b) => b.p.xp - a.p.xp);
+      ranked.forEach((r, i) => {
+        const el = document.createElement("span");
+        el.className = "lb-item" + (i === 0 && r.p.xp > 0 ? " leader" : "");
+        const medal = i === 0 && r.p.xp > 0 ? "👑" : ("#" + (i + 1));
+        el.innerHTML = '<span class="lb-rank">' + medal + '</span> ' + r.p.face + ' ' + r.p.name + ' · ' + r.p.xp + ' XP';
+        lb.appendChild(el);
+      });
+    }
+
+    function renderThemes() {
+      const row = $("themeRow"); row.innerHTML = "";
+      const p = profile();
+      const myLevel = levelFor(p.xp).idx + 1;
+      Object.entries(THEMES).forEach(([key, t]) => {
+        const need = t.unlock || 0;
+        const isUnlocked = myLevel >= (need === 0 ? 1 : need);
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip" + (p.theme === key ? " theme-active" : "") + (isUnlocked ? "" : " locked");
+        b.textContent = isUnlocked ? t.label : t.label + " 🔒 Lv" + need;
+        b.addEventListener("click", () => {
+          if (!isUnlocked) { sfx("pop"); showToast("🔒 Reach Level " + need + " to unlock " + t.label + "!"); return; }
+          p.theme = key; saveState(); applyTheme(key); sfx("pop"); renderThemes();
+        });
+        row.appendChild(b);
+      });
     }
 
     function renderHistory() {
-      const list = document.getElementById("historyList");
-      const clearBtn = document.getElementById("clearHistoryBtn");
-      const lastUsed = document.getElementById("lastUsed");
-
-      if (!state.history.length) {
+      const p = profile();
+      const list = $("historyList"), clr = $("clearHistoryBtn"), lastUsed = $("lastUsed");
+      if (!p.history.length) {
         list.innerHTML = '<li class="history-empty">Nothing here yet — add your first event to start the log! 🌟</li>';
-        clearBtn.style.display = "none";
-        lastUsed.textContent = "Never used yet";
-        return;
+        clr.style.display = "none"; lastUsed.textContent = "Never used yet"; return;
       }
-
-      lastUsed.textContent = "Last used: " + friendlyWhen(state.history[0].at);
-      clearBtn.style.display = "inline-block";
-
+      lastUsed.textContent = "Last used: " + friendlyWhen(p.history[0].at);
+      clr.style.display = "inline-block";
       list.innerHTML = "";
-      state.history.slice(0, 12).forEach(h => {
-        const li = document.createElement("li");
-        li.className = "history-item";
+      p.history.slice(0, 12).forEach(h => {
+        const li = document.createElement("li"); li.className = "history-item";
         const left = document.createElement("span");
         left.textContent = (h.emoji || "📌") + " " + h.title + (h.date ? " · " + h.date : "");
-        const right = document.createElement("span");
-        right.className = "when";
+        const right = document.createElement("span"); right.className = "when";
         right.textContent = friendlyWhen(h.at);
-        li.appendChild(left);
-        li.appendChild(right);
-        list.appendChild(li);
+        li.appendChild(left); li.appendChild(right); list.appendChild(li);
       });
     }
+
+    function renderAll() { renderProfiles(); renderGame(); renderLeaderboard(); renderThemes(); renderHistory(); }
 
     function friendlyWhen(iso) {
       const then = new Date(iso);
       if (isNaN(then.getTime())) return "";
-      const now = new Date();
-      const ms = now - then;
-      const mins = Math.floor(ms / 60000);
+      const mins = Math.floor((new Date() - then) / 60000);
       if (mins < 1) return "just now";
       if (mins < 60) return mins + " min ago";
       const hrs = Math.floor(mins / 60);
@@ -785,195 +707,185 @@
       return then.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
     }
 
-    /* ---- award XP / streak / badges when an event is added ---- */
+    /* ---------- award XP / streak / badges ---------- */
     function recordEvent(ev) {
+      const p = profile();
       let gained = 10;
       if (ev.description) gained += 5;
       if (ev.repeatType && ev.repeatType !== "none") gained += 5;
 
-      // streak: consecutive calendar days
       const today = todayKey();
-      if (state.lastDay !== today) {
-        const yesterday = (() => {
-          const d = new Date(); d.setDate(d.getDate() - 1);
-          return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-        })();
-        if (state.lastDay === yesterday) state.streak += 1;
-        else state.streak = 1;
-        state.lastDay = today;
-      } else if (state.streak === 0) {
-        state.streak = 1;
-        state.lastDay = today;
-      }
+      if (p.lastDay !== today) {
+        const d = new Date(); d.setDate(d.getDate() - 1);
+        const yesterday = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+        p.streak = (p.lastDay === yesterday) ? p.streak + 1 : 1;
+        p.lastDay = today;
+      } else if (p.streak === 0) { p.streak = 1; p.lastDay = today; }
 
-      state.xp += gained;
-      state.total += 1;
-      state.history.unshift({
-        title: ev.title,
-        emoji: ev.emoji,
-        date: ev.dateStr,
-        at: new Date().toISOString()
-      });
-      if (state.history.length > 50) state.history.length = 50;
+      p.xp += gained;
+      p.total += 1;
+      p.history.unshift({ title: ev.title, emoji: ev.emoji, date: ev.dateStr, at: new Date().toISOString() });
+      if (p.history.length > 50) p.history.length = 50;
 
-      // badges
       const newBadges = [];
-      function grant(id) { if (!state.badges.includes(id)) { state.badges.push(id); newBadges.push(id); } }
+      const grant = id => { if (!p.badges.includes(id)) { p.badges.push(id); newBadges.push(id); } };
       grant("first");
-      if (state.streak >= 3) grant("streak3");
+      if (p.streak >= 3) grant("streak3");
       if (/homework|study|assignment|read/i.test(ev.title)) grant("study");
       if (ev.repeatType && ev.repeatType !== "none") grant("repeat");
-      if (state.total >= 10) grant("ten");
-      if (state.total >= 25) grant("legend");
+      if (p.total >= 10) grant("ten");
+      if (p.total >= 25) grant("legend");
 
-      const beforeLevel = levelFor(state.xp - gained).idx;
-      const afterLevel = levelFor(state.xp).idx;
-      const leveledUp = afterLevel > beforeLevel;
+      const leveledUp = levelFor(p.xp).idx > levelFor(p.xp - gained).idx;
 
       saveState();
-      renderGame();
-
-      // celebrate
+      renderAll();
       celebrate();
-      let msg = "🎉 +" + gained + " XP! Event added.";
-      if (leveledUp) msg = "🚀 LEVEL UP! You’re now a " + LEVELS[afterLevel].name + "! +" + gained + " XP";
+
+      let msg = "🎉 +" + gained + " XP, " + p.name + "! Event added & Dad’s notified.";
+      if (leveledUp) { msg = "🚀 LEVEL UP! " + p.name + " is now a " + levelFor(p.xp).lvl.name + "! +" + gained + " XP"; sfx("level"); }
       else if (newBadges.length) {
         const b = BADGES.find(x => x.id === newBadges[0]);
-        msg = b.emoji + " New badge: " + b.title.split(" — ")[0] + "! +" + gained + " XP";
-      }
+        msg = b.emoji + " New badge: " + b.title.split(" — ")[0] + "! +" + gained + " XP"; sfx("badge");
+      } else { sfx("add"); }
       showToast(msg);
+    }
+
+    /* ============================================================
+       SOUND (generated, no files) + mute
+       ============================================================ */
+    let audioCtx = null;
+    function ac() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } return audioCtx; }
+    function tone(freq, start, dur, type, gain) {
+      const c = ac(); if (!c) return;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type || "sine"; o.frequency.value = freq;
+      o.connect(g); g.connect(c.destination);
+      const t = c.currentTime + start;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain || 0.15, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.start(t); o.stop(t + dur + 0.02);
+    }
+    function sfx(name) {
+      if (!state.soundOn) return;
+      if (name === "pop")   tone(440, 0, 0.08, "square", 0.10);
+      if (name === "add")  { tone(523, 0, 0.12, "sine", 0.15); tone(784, 0.1, 0.2, "sine", 0.15); }
+      if (name === "level") [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.1, 0.24, "triangle", 0.16));
+      if (name === "badge") [988, 1319, 1568].forEach((f, i) => tone(f, i * 0.08, 0.16, "sine", 0.14));
+    }
+
+    /* ============================================================
+       VOICE-TO-TEXT (Web Speech API)
+       ============================================================ */
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    function wireMic(btnId, targetEl) {
+      const btn = $(btnId);
+      if (!SpeechRec) { btn.style.display = "none"; return; }
+      let rec = null, listening = false;
+      btn.addEventListener("click", () => {
+        if (listening && rec) { rec.stop(); return; }
+        rec = new SpeechRec();
+        rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 1;
+        rec.onstart = () => { listening = true; btn.classList.add("listening"); sfx("pop"); };
+        rec.onerror = () => { listening = false; btn.classList.remove("listening"); };
+        rec.onend = () => { listening = false; btn.classList.remove("listening"); };
+        rec.onresult = e => {
+          const text = e.results[0][0].transcript;
+          targetEl.value = targetEl.value ? (targetEl.value + " " + text) : text;
+          targetEl.dispatchEvent(new Event("input"));
+          sfx("add");
+        };
+        try { rec.start(); } catch (e) {}
+      });
     }
 
     /* ============================================================
        TOAST + CONFETTI
        ============================================================ */
-    const toastEl = document.getElementById("toast");
-    let toastTimer = null;
+    const toastEl = $("toast"); let toastTimer = null;
     function showToast(msg) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3800);
+      toastEl.textContent = msg; toastEl.classList.add("show");
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3800);
     }
-
-    const confettiCanvas = document.getElementById("confetti");
-    const cctx = confettiCanvas.getContext("2d");
-    let confettiPieces = [];
-    let confettiRAF = null;
-
-    function sizeCanvas() {
-      confettiCanvas.width = window.innerWidth;
-      confettiCanvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", sizeCanvas);
-    sizeCanvas();
-
+    const confettiCanvas = $("confetti"), cctx = confettiCanvas.getContext("2d");
+    let confettiPieces = [], confettiRAF = null;
+    function sizeCanvas() { confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+    window.addEventListener("resize", sizeCanvas); sizeCanvas();
     function celebrate() {
       const colors = ["#c573ff", "#ffd166", "#0b8043", "#ff6bb5", "#4dd2ff", "#ffe9a8"];
       for (let i = 0; i < 120; i++) {
         confettiPieces.push({
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 3,
-          vx: (Math.random() - 0.5) * 12,
-          vy: Math.random() * -12 - 4,
-          g: 0.3 + Math.random() * 0.2,
-          size: 5 + Math.random() * 7,
+          x: window.innerWidth / 2, y: window.innerHeight / 3,
+          vx: (Math.random() - 0.5) * 12, vy: Math.random() * -12 - 4,
+          g: 0.3 + Math.random() * 0.2, size: 5 + Math.random() * 7,
           color: colors[Math.floor(Math.random() * colors.length)],
-          rot: Math.random() * 6.28,
-          vr: (Math.random() - 0.5) * 0.4,
-          life: 0
+          rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.4, life: 0
         });
       }
       if (!confettiRAF) tickConfetti();
     }
-
     function tickConfetti() {
       cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
       confettiPieces.forEach(p => {
-        p.vy += p.g;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.vr;
-        p.life += 1;
-        cctx.save();
-        cctx.translate(p.x, p.y);
-        cctx.rotate(p.rot);
-        cctx.fillStyle = p.color;
-        cctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-        cctx.restore();
+        p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life += 1;
+        cctx.save(); cctx.translate(p.x, p.y); cctx.rotate(p.rot);
+        cctx.fillStyle = p.color; cctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); cctx.restore();
       });
       confettiPieces = confettiPieces.filter(p => p.y < confettiCanvas.height + 40 && p.life < 240);
-      if (confettiPieces.length) {
-        confettiRAF = requestAnimationFrame(tickConfetti);
-      } else {
-        cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-        confettiRAF = null;
-      }
+      if (confettiPieces.length) confettiRAF = requestAnimationFrame(tickConfetti);
+      else { cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); confettiRAF = null; }
     }
 
     /* ============================================================
-       FRIENDLY VALIDATION (no harsh alerts)
+       VALIDATION
        ============================================================ */
     function setError(groupId, on) {
-      const g = document.getElementById(groupId);
-      if (!g) return;
+      const g = $(groupId); if (!g) return;
       g.classList.toggle("field-error", on);
       if (on) { g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake"); }
     }
-
-    function clearErrors() {
-      ["fg-title", "fg-date", "fg-start"].forEach(id => {
-        const g = document.getElementById(id);
-        if (g) g.classList.remove("field-error");
-      });
-    }
+    function clearErrors() { ["fg-title", "fg-start"].forEach(id => { const g = $(id); if (g) g.classList.remove("field-error"); }); $("dateMsg").style.display = "none"; }
 
     /* ============================================================
-       ORIGINAL CALENDAR LOGIC (preserved)
+       CALENDAR LOGIC
        ============================================================ */
     function formatDateForCard(dateStr) {
       if (!dateStr) return "Date: (not set)";
       const date = new Date(dateStr + "T00:00:00");
       if (isNaN(date.getTime())) return "Date: " + dateStr;
-      const options = { weekday: "short", year: "numeric", month: "short", day: "numeric" };
-      return "Date: " + date.toLocaleDateString(undefined, options);
+      return "Date: " + date.toLocaleDateString(undefined, { weekday: "short", year: "numeric", month: "short", day: "numeric" });
     }
-
     function formatTime12h(hhmm) {
       if (!hhmm) return "";
       const [hourStr, minuteStr] = hhmm.split(":");
-      let hour = parseInt(hourStr, 10);
-      const minute = minuteStr || "00";
+      let hour = parseInt(hourStr, 10); const minute = minuteStr || "00";
       if (isNaN(hour)) return hhmm;
-      const ampm = hour >= 12 ? "pm" : "am";
-      hour = hour % 12;
-      if (hour === 0) hour = 12;
+      const ampm = hour >= 12 ? "pm" : "am"; hour = hour % 12; if (hour === 0) hour = 12;
       return hour + ":" + minute + " " + ampm;
     }
-
     function guessEmoji(title) {
       if (!title) return "⭐";
       const t = title.toLowerCase();
       if (t.includes("choir") || t.includes("sing") || t.includes("music")) return "🎶";
       if (t.includes("basketball") || t.includes("bball")) return "🏀";
       if (t.includes("baseball")) return "⚾";
+      if (t.includes("soccer")) return "⚽";
       if (t.includes("zoo") || t.includes("animals")) return "🦁";
       if (t.includes("homework") || t.includes("study") || t.includes("assignment")) return "📚";
       if (t.includes("practice")) return "💪";
       if (t.includes("game") || t.includes("match")) return "🎮";
       if (t.includes("birthday") || t.includes("party")) return "🎉";
       if (t.includes("doctor") || t.includes("dentist") || t.includes("appointment")) return "🩺";
+      if (t.includes("dance")) return "💃";
       return "⭐";
     }
 
     function buildPreviewAndStoreEvent() {
-      const title = titleInput.value.trim();
-      const who = whoInput.value.trim();
-      const dateStr = dateInput.value;
-      const startTime = startTimeInput.value;
+      const title = titleInput.value.trim(), who = whoInput.value.trim();
+      const dateStr = dateInput.value, startTime = startTimeInput.value;
       let endTime = endTimeInput.value;
-      const locationName = locationNameInput.value.trim();
-      const address = addressInput.value.trim();
+      const locationName = locationNameInput.value.trim(), address = addressInput.value.trim();
       const description = descriptionInput.value.trim();
       const repeatType = repeatTypeSelect.value;
       let repeatCount = repeatCountInput.value.trim();
@@ -982,21 +894,17 @@
       clearErrors();
       if (!title || !dateStr || !startTime) {
         setError("fg-title", !title);
-        setError("fg-date", !dateStr);
+        if (!dateStr) $("dateMsg").style.display = "block";
         setError("fg-start", !startTime);
         showToast("S.A.R.A.H. needs a name, a day, and a start time. 🌸");
         return null;
       }
 
-      let emoji = emojiSelect.value;
-      if (!emoji) emoji = guessEmoji(title);
+      let emoji = emojiSelect.value || guessEmoji(title);
 
-      // default end time = +1 hour if empty
       if (!endTime && startTime) {
         const [sh, sm] = startTime.split(":").map(Number);
-        let endH = sh + 1;
-        let endM = sm;
-        if (endH >= 24) endH = 23;
+        let endH = sh + 1, endM = sm; if (endH >= 24) endH = 23;
         endTime = String(endH).padStart(2, "0") + ":" + String(endM).padStart(2, "0");
         endTimeInput.value = endTime;
       }
@@ -1005,20 +913,14 @@
         let n = parseInt(repeatCount, 10);
         if (isNaN(n) || n < 2) { n = 4; repeatCountInput.value = "4"; }
         repeatCount = n;
-      } else {
-        repeatCount = null;
-      }
+      } else repeatCount = null;
 
-      const formattedDate = formatDateForCard(dateStr);
-      const startFormatted = formatTime12h(startTime);
+      let timeLine = "Time: " + formatTime12h(startTime);
       const endFormatted = formatTime12h(endTime);
-      let timeLine = "Time: " + startFormatted;
       if (endFormatted) timeLine += "–" + endFormatted;
 
       const locationLine = locationName || address
-        ? "Location: " + [locationName, address].filter(Boolean).join(" – ")
-        : "Location: (not set yet)";
-
+        ? "Location: " + [locationName, address].filter(Boolean).join(" – ") : "Location: (not set yet)";
       const whoLine = who ? "Who’s going: " + who : "Who’s going: (you can add this later)";
       const whatLine = description ? "What it is: " + description : "What it is: (you can describe it later)";
 
@@ -1033,14 +935,10 @@
       const noteLine = "Tip: Plan to be there 5–10 minutes early so it feels calm. 🕒";
 
       cardPreview.classList.remove(...moods);
-      const mood = moods[Math.floor(Math.random() * moods.length)];
-      cardPreview.classList.add(mood);
-
-      const encour = encouragements[Math.floor(Math.random() * encouragements.length)];
-      const quote = quotes[Math.floor(Math.random() * quotes.length)];
+      cardPreview.classList.add(moods[Math.floor(Math.random() * moods.length)]);
 
       cardTitle.textContent    = emoji + " " + title;
-      cardDate.textContent     = formattedDate;
+      cardDate.textContent     = formatDateForCard(dateStr);
       cardTime.textContent     = timeLine;
       cardLocation.textContent = locationLine;
       cardWho.textContent      = whoLine;
@@ -1049,54 +947,43 @@
 
       cardPreview.classList.remove("hidden");
       encouragementBox.classList.remove("hidden");
-      encouragementText.textContent = encour;
-      quoteText.textContent = quote;
+      encouragementText.textContent = encouragements[Math.floor(Math.random() * encouragements.length)];
+      quoteText.textContent = quotes[Math.floor(Math.random() * quotes.length)];
 
-      let guestEmails = [];
-      if (emailsRaw) {
-        guestEmails = emailsRaw.split(",").map(e => e.trim()).filter(e => e.includes("@"));
-      }
+      // guests: always include Dad
+      let guestEmails = [DAD_EMAIL];
+      if (emailsRaw) emailsRaw.split(",").map(e => e.trim()).filter(e => e.includes("@")).forEach(e => {
+        if (e.toLowerCase() !== DAD_EMAIL.toLowerCase()) guestEmails.push(e);
+      });
 
-      currentEvent = {
-        title, emoji, who, dateStr, startTime, endTime,
-        locationName, address, description, repeatType, repeatCount,
-        noteLine, guestEmails
-      };
-
+      currentEvent = { title, emoji, who, dateStr, startTime, endTime, locationName, address,
+                       description, repeatType, repeatCount, noteLine, guestEmails, planner: profile().name };
       return currentEvent;
     }
 
     function toGCalDateTime(dateStr, timeStr) {
       if (!dateStr || !timeStr) return "";
-      const [y, m, d] = dateStr.split("-");
-      const [H, M] = timeStr.split(":");
+      const [y, m, d] = dateStr.split("-"); const [H, M] = timeStr.split(":");
       return y + m + d + "T" + H + M + "00";
     }
-
     function buildRecurrence(ev) {
       if (!ev.repeatType || ev.repeatType === "none") return "";
-      let freq = "DAILY";
-      let extra = "";
+      let freq = "DAILY", extra = "";
       if (ev.repeatType === "daily")   freq = "DAILY";
       if (ev.repeatType === "weekly")  freq = "WEEKLY";
       if (ev.repeatType === "biweekly"){ freq = "WEEKLY"; extra = ";INTERVAL=2"; }
       if (ev.repeatType === "monthly") freq = "MONTHLY";
       if (ev.repeatType === "yearly")  freq = "YEARLY";
-      let count = ev.repeatCount || 4;
-      if (count < 2) count = 2;
+      let count = ev.repeatCount || 4; if (count < 2) count = 2;
       return "RRULE:FREQ=" + freq + extra + ";COUNT=" + count;
     }
 
     function addToGoogleCalendar() {
       const ev = buildPreviewAndStoreEvent();
       if (!ev) return;
-
       const start = toGCalDateTime(ev.dateStr, ev.startTime);
       const end = toGCalDateTime(ev.dateStr, ev.endTime || ev.startTime);
-      if (!start || !end) {
-        showToast("S.A.R.A.H. couldn’t read the time. Double-check it. ⏰");
-        return;
-      }
+      if (!start || !end) { showToast("S.A.R.A.H. couldn’t read the time. Double-check it. ⏰"); return; }
 
       const title = (ev.emoji || "⭐") + " " + ev.title;
       const locationFull = [ev.locationName, ev.address].filter(Boolean).join(" – ");
@@ -1104,11 +991,11 @@
       const detailsLines = [];
       if (ev.description) detailsLines.push(ev.description);
       if (ev.who) detailsLines.push("Who’s going: " + ev.who);
+      detailsLines.push("📲 Planned by " + ev.planner + " in S.A.R.A.H.");
       if (ev.noteLine) detailsLines.push(ev.noteLine);
       const details = detailsLines.join("\n");
 
       const recurRule = buildRecurrence(ev);
-
       const base = "https://calendar.google.com/calendar/render?action=TEMPLATE";
       const params = [
         "text=" + encodeURIComponent(title),
@@ -1117,114 +1004,127 @@
         "dates=" + encodeURIComponent(start + "/" + end)
       ];
       if (recurRule) params.push("recur=" + encodeURIComponent(recurRule));
-      if (ev.guestEmails && ev.guestEmails.length > 0) {
-        params.push("add=" + encodeURIComponent(ev.guestEmails.join(",")));
-      }
+      if (ev.guestEmails && ev.guestEmails.length) params.push("add=" + encodeURIComponent(ev.guestEmails.join(",")));
 
-      const url = base + "&" + params.join("&");
-
-      // reward + log BEFORE opening so the celebration is seen
       recordEvent(ev);
-      window.open(url, "_blank");
+      window.open(base + "&" + params.join("&"), "_blank");
     }
 
     /* ============================================================
-       QUICK TEMPLATES
+       QUICK CHIPS — templates, dates, times
        ============================================================ */
     const TEMPLATES = [
       { label: "📚 Homework", title: "Math Homework", emoji: "📚", start: "18:00", end: "18:45", loc: "Kitchen Table", desc: "Focused homework time so it’s done before bed.", repeat: "daily", count: "5" },
       { label: "⚾ Practice", title: "Baseball Practice", emoji: "⚾", start: "16:30", end: "18:00", loc: "Field", desc: "Sports practice — bring water and gear.", repeat: "weekly", count: "8" },
       { label: "🎶 Choir", title: "Choir Rehearsal", emoji: "🎶", start: "15:30", end: "16:30", loc: "School Music Room", desc: "Choir rehearsal after school.", repeat: "weekly", count: "6" },
       { label: "🩺 Appointment", title: "Doctor Appointment", emoji: "🩺", start: "10:00", end: "10:45", loc: "Clinic", desc: "Check-up appointment.", repeat: "none", count: "" },
-      { label: "🎉 Birthday", title: "Birthday Party", emoji: "🎉", start: "14:00", end: "16:00", loc: "", desc: "Birthday party — bring a gift!", repeat: "yearly", count: "3" }
+      { label: "🎉 Birthday", title: "Birthday Party", emoji: "🎉", start: "14:00", end: "16:00", loc: "", desc: "Birthday party — bring a gift!", repeat: "yearly", count: "3" },
+      { label: "🏫 Field Trip", title: "School Field Trip", emoji: "🎓", start: "08:00", end: "14:00", loc: "School", desc: "School field trip — permission slip and lunch needed.", repeat: "none", count: "" }
     ];
 
+    function isoFor(d) { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+
     function applyTemplate(t) {
-      titleInput.value = t.title;
-      emojiSelect.value = t.emoji;
-      const today = new Date();
-      dateInput.value = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
-      startTimeInput.value = t.start;
-      endTimeInput.value = t.end;
-      locationNameInput.value = t.loc;
-      descriptionInput.value = t.desc;
-      repeatTypeSelect.value = t.repeat;
-      repeatCountInput.value = t.count;
+      titleInput.value = t.title; emojiSelect.value = t.emoji;
+      if (!dateInput.value) dateInput.value = isoFor(new Date());
+      startTimeInput.value = t.start; endTimeInput.value = t.end;
+      locationNameInput.value = t.loc; descriptionInput.value = t.desc;
+      repeatTypeSelect.value = t.repeat; repeatCountInput.value = t.count;
       repeatTypeSelect.dispatchEvent(new Event("change"));
-      buildPreviewAndStoreEvent();
+      sfx("pop"); buildPreviewAndStoreEvent();
       titleInput.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function renderTemplates() {
-      const row = document.getElementById("chipRow");
-      row.innerHTML = "";
+      const row = $("chipRow"); row.innerHTML = "";
       TEMPLATES.forEach(t => {
         const b = document.createElement("button");
-        b.type = "button";
-        b.className = "chip";
-        b.textContent = t.label;
+        b.type = "button"; b.className = "chip"; b.textContent = t.label;
         b.addEventListener("click", () => applyTemplate(t));
         row.appendChild(b);
       });
     }
 
+    function renderDateChips() {
+      const row = $("dateChips"); row.innerHTML = "";
+      const opts = [
+        { label: "📅 Today", d: 0 },
+        { label: "➡️ Tomorrow", d: 1 },
+        { label: "🎒 This weekend", weekend: true }
+      ];
+      opts.forEach(o => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.textContent = o.label;
+        b.addEventListener("click", () => {
+          const d = new Date();
+          if (o.weekend) { const add = (6 - d.getDay() + 7) % 7 || 6; d.setDate(d.getDate() + add); }
+          else d.setDate(d.getDate() + o.d);
+          dateInput.value = isoFor(d); sfx("pop"); maybePreview();
+        });
+        row.appendChild(b);
+      });
+    }
+
+    function renderTimeChips() {
+      const row = $("timeChips"); row.innerHTML = "";
+      const opts = [
+        { label: "🌅 Morning", t: "09:00" },
+        { label: "🏫 After school", t: "15:30" },
+        { label: "🍽️ Dinner", t: "18:00" },
+        { label: "🌙 Bedtime", t: "20:00" }
+      ];
+      opts.forEach(o => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.textContent = o.label;
+        b.addEventListener("click", () => { startTimeInput.value = o.t; sfx("pop"); maybePreview(); });
+        row.appendChild(b);
+      });
+    }
+
+    function maybePreview() {
+      if (titleInput.value.trim() && dateInput.value && startTimeInput.value) buildPreviewAndStoreEvent();
+    }
+
     /* ============================================================
        DEMO + CLEAR
        ============================================================ */
-    function fillDemo() {
-      applyTemplate(TEMPLATES[0]);
-    }
-
+    function fillDemo() { applyTemplate(TEMPLATES[0]); }
     function clearForm() {
-      titleInput.value = "";
-      emojiSelect.value = "";
-      whoInput.value = "";
-      dateInput.value = "";
-      startTimeInput.value = "";
-      endTimeInput.value = "";
-      locationNameInput.value = "";
-      addressInput.value = "";
-      descriptionInput.value = "";
-      repeatTypeSelect.value = "none";
-      repeatCountInput.value = "";
-      emailsInput.value = "Jeffreylroby@gmail.com, janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com";
+      [titleInput, whoInput, dateInput, startTimeInput, endTimeInput, locationNameInput, addressInput, descriptionInput, repeatCountInput].forEach(el => el.value = "");
+      emojiSelect.value = ""; repeatTypeSelect.value = "none";
+      emailsInput.value = "janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com";
       repeatTypeSelect.dispatchEvent(new Event("change"));
       clearErrors();
-      cardPreview.classList.add("hidden");
-      encouragementBox.classList.add("hidden");
+      cardPreview.classList.add("hidden"); encouragementBox.classList.add("hidden");
+      sfx("pop");
     }
 
     /* ============================================================
        WIRE-UP
        ============================================================ */
-    repeatTypeSelect.addEventListener("change", () => {
-      repeatCountGroup.style.opacity = repeatTypeSelect.value === "none" ? "0.3" : "1";
-    });
+    repeatTypeSelect.addEventListener("change", () => { repeatCountGroup.style.opacity = repeatTypeSelect.value === "none" ? "0.3" : "1"; });
     repeatTypeSelect.dispatchEvent(new Event("change"));
 
     gcalBtn.addEventListener("click", addToGoogleCalendar);
     demoBtn.addEventListener("click", fillDemo);
     clearBtn.addEventListener("click", clearForm);
 
-    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
-      if (confirm("Clear the activity log? Your level and badges stay — just the list goes away.")) {
-        state.history = [];
-        saveState();
-        renderHistory();
+    $("soundBtn").addEventListener("click", () => { state.soundOn = !state.soundOn; saveState(); $("soundBtn").textContent = state.soundOn ? "🔊" : "🔈"; if (state.soundOn) sfx("add"); });
+
+    $("clearHistoryBtn").addEventListener("click", () => {
+      if (confirm("Clear " + profile().name + "’s activity log? Level and badges stay — just the list goes away.")) {
+        profile().history = []; saveState(); renderHistory();
       }
     });
 
-    // live preview as you type the basics
-    [titleInput, dateInput, startTimeInput].forEach(el => {
-      el.addEventListener("input", () => {
-        if (titleInput.value.trim() && dateInput.value && startTimeInput.value) {
-          buildPreviewAndStoreEvent();
-        }
-      });
-    });
+    [titleInput, dateInput, startTimeInput].forEach(el => el.addEventListener("input", maybePreview));
 
-    renderTemplates();
-    renderGame();
+    wireMic("micTitle", titleInput);
+    wireMic("micDesc", descriptionInput);
+
+    renderTemplates(); renderDateChips(); renderTimeChips();
+    applyTheme(profile().theme);
+    renderAll();
   </script>
 </body>
 </html>
