@@ -567,7 +567,23 @@
       kitty: { label: "🐱 Kitty", unlock: 4, vars: {
         "--bg-grad":"linear-gradient(160deg,#fff5f0,#ffe9ef)","--pill-bg":"#ffe0e6","--pill-fg":"#c2185b",
         "--gamebar-grad":"linear-gradient(135deg,#ff8fab,#ffb3c6)","--accent":"#ff7aa2","--accent-deep":"#c2185b",
-        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff2f5","--chip-border":"#ffd4dd","--chip-text":"#c2185b" } }
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff2f5","--chip-border":"#ffd4dd","--chip-text":"#c2185b" } },
+      candy: { label: "🍭 Candy", unlock: 2, vars: {
+        "--bg-grad":"linear-gradient(160deg,#fff0f6,#f3e6ff)","--pill-bg":"#ffe0f0","--pill-fg":"#b5179e",
+        "--gamebar-grad":"linear-gradient(135deg,#f72585,#b5179e,#7209b7)","--accent":"#f72585","--accent-deep":"#b5179e",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff0f7","--chip-border":"#ffcfe7","--chip-text":"#b5179e" } },
+      aurora: { label: "🌌 Aurora", unlock: 4, vars: {
+        "--bg-grad":"linear-gradient(160deg,#04293a,#064663)","--pill-bg":"#0b3a4f","--pill-fg":"#8be8d8",
+        "--gamebar-grad":"linear-gradient(135deg,#1b998b,#3a86ff,#8338ec)","--accent":"#41ead4","--accent-deep":"#8be8d8",
+        "--primary":"#12b886","--primary-shadow":"rgba(18,184,134,0.4)","--chip-bg":"#eefaf7","--chip-border":"#bfeede","--chip-text":"#0a6b5a" } },
+      lava: { label: "🔥 Lava", unlock: 5, vars: {
+        "--bg-grad":"linear-gradient(160deg,#1a0a05,#3a1106)","--pill-bg":"#3a1709","--pill-fg":"#ffb86b",
+        "--gamebar-grad":"linear-gradient(135deg,#7a1a00,#ff4d00,#ffb703)","--accent":"#ff6b35","--accent-deep":"#ffb86b",
+        "--primary":"#e8590c","--primary-shadow":"rgba(232,89,12,0.4)","--chip-bg":"#fff3ec","--chip-border":"#ffd2a8","--chip-text":"#b8430f" } },
+      royal: { label: "👑 Royal", unlock: 6, vars: {
+        "--bg-grad":"linear-gradient(160deg,#1a1230,#2c1a4d)","--pill-bg":"#2c1f4a","--pill-fg":"#ffd700",
+        "--gamebar-grad":"linear-gradient(135deg,#4a0e8f,#7b2ff7,#ffd700)","--accent":"#c9a227","--accent-deep":"#ffd700",
+        "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.4)","--chip-bg":"#fbf7e6","--chip-border":"#ecd98f","--chip-text":"#7a5c00" } }
     };
 
     function applyTheme(key) {
@@ -613,7 +629,9 @@
           kyleigh: newProfile("Kyleigh", "👧", "unicorn"),
           ashley:  newProfile("Ashley", "🧒", "ocean"),
           mom:     newProfile("Mom", "👩", "sunset"),
-          dad:     newProfile("Dad", "👨", "galaxy")
+          dad:     newProfile("Dad", "👨", "galaxy"),
+          grandma: newProfile("Grandma", "👵", "kitty"),
+          will:    newProfile("Will", "🧑", "sporty")
         }
       };
     }

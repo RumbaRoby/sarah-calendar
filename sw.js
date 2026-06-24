@@ -1,5 +1,5 @@
-/* S.A.R.A.H. service worker — offline-first app shell */
-const CACHE = "sarah-v1";
+/* S.A.R.A.H. service worker — fresh-first so updates reach everyone fast */
+const CACHE = "sarah-v2";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", e => {
@@ -16,13 +16,30 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
-  e.respondWith(
-    caches.match(e.request).then(cached =>
-      cached || fetch(e.request).then(resp => {
+  const isPage = e.request.mode === "navigate" ||
+    (e.request.destination === "document") ||
+    e.request.url.endsWith(".html") || e.request.url.endsWith("/");
+
+  if (isPage) {
+    // Network-first for the app itself → always the freshest version when online,
+    // falls back to the cached copy when offline.
+    e.respondWith(
+      fetch(e.request).then(resp => {
         const copy = resp.clone();
         caches.open(CACHE).then(c => c.put(e.request, copy));
         return resp;
-      }).catch(() => caches.match("./index.html"))
-    )
-  );
+      }).catch(() => caches.match(e.request).then(r => r || caches.match("./index.html")))
+    );
+  } else {
+    // Cache-first for static assets (icon, manifest) → fast.
+    e.respondWith(
+      caches.match(e.request).then(cached =>
+        cached || fetch(e.request).then(resp => {
+          const copy = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy));
+          return resp;
+        }).catch(() => caches.match("./index.html"))
+      )
+    );
+  }
 });
