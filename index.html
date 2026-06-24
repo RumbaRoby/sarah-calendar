@@ -5,6 +5,15 @@
   <title>🌸 S.A.R.A.H. Calendar Helper</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Installable app (add to home screen) -->
+  <meta name="theme-color" content="#7a267b">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="S.A.R.A.H.">
+
   <style>
     * { box-sizing: border-box; }
 
@@ -246,6 +255,34 @@
     }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+    /* ---------- NUDGE + QUEST + INSTALL ---------- */
+    .nudge {
+      display: none; align-items: center; gap: 8px;
+      background: #fff6e0; border: 1px solid #ffe2a8; color: #8a6500;
+      border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.86rem;
+    }
+    .nudge.show { display: flex; }
+    .nudge .x { margin-left: auto; cursor: pointer; opacity: 0.6; font-weight: 700; background:none;border:none;font-size:0.9rem; }
+    .quest {
+      margin-top: 10px; background: rgba(255,255,255,0.16); border-radius: 10px;
+      padding: 7px 10px; font-size: 0.82rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .quest.done { background: rgba(255,255,255,0.32); }
+    .install-btn {
+      display: none; background: #fff; color: var(--accent-deep);
+      border: 2px solid var(--accent); margin-bottom: 12px; width: 100%;
+      justify-content: center; font-size: 0.95rem;
+    }
+    .install-btn.show { display: inline-flex; }
+    .edit-btn {
+      background: #f4f0ff; border: none; border-radius: 50%;
+      width: 38px; height: 38px; font-size: 1rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .chip .x { margin-left: 5px; opacity: 0.55; font-weight: 700; }
+    .chip.custom { border-style: dashed; }
+
     @media (max-width: 480px) { .row { flex-direction: column; } }
   </style>
 </head>
@@ -263,10 +300,18 @@
       Then hit the big green button. Everyone stays in the loop. ✨
     </div>
 
+    <div class="nudge" id="nudge">
+      <span id="nudgeText"></span>
+      <button class="x" id="nudgeClose" title="dismiss">✕</button>
+    </div>
+
+    <button type="button" class="btn-secondary install-btn" id="installBtn">📲 Install S.A.R.A.H. as an app</button>
+
     <!-- ===== PROFILE BAR ===== -->
     <div class="profilebar">
       <div class="who-label">Who’s planning?</div>
       <div class="avatars" id="avatars"></div>
+      <button class="edit-btn" id="editBtn" title="Rename / change face">✏️</button>
       <button class="icon-toggle" id="soundBtn" title="Sound on/off">🔊</button>
     </div>
 
@@ -282,6 +327,7 @@
       <div class="xpbar-track"><div class="xpbar-fill" id="xpFill"></div></div>
       <div class="xptext" id="xpText">0 / 100 XP</div>
       <div class="badge-row" id="badgeRow"></div>
+      <div class="quest" id="quest">🎯 Today’s quest: log 1 event for a +15 XP bonus!</div>
     </div>
 
     <!-- ===== LEADERBOARD ===== -->
@@ -409,6 +455,7 @@
 
       <div class="btn-row">
         <button type="button" class="btn-primary" id="gcalBtn">📲 Add to Google Calendar</button>
+        <button type="button" class="btn-secondary" id="saveTplBtn">💾 Save as a button</button>
         <button type="button" class="btn-secondary" id="demoBtn">🎲 Example</button>
         <button type="button" class="btn-secondary" id="clearBtn">🧹 Clear</button>
       </div>
@@ -553,13 +600,14 @@
     ];
 
     function newProfile(name, face, theme) {
-      return { name, face, theme: theme || "blossom", xp: 0, total: 0, streak: 0, lastDay: null, badges: [], history: [] };
+      return { name, face, theme: theme || "blossom", xp: 0, total: 0, streak: 0, lastDay: null, badges: [], history: [], questDay: null };
     }
 
     function defaultState() {
       return {
         soundOn: true,
         activeId: "kyleigh",
+        customTemplates: [],
         profiles: {
           kyleigh: newProfile("Kyleigh", "👧", "unicorn"),
           ashley:  newProfile("Ashley", "🧒", "ocean"),
@@ -576,6 +624,7 @@
         const s = JSON.parse(raw);
         const base = defaultState();
         return { soundOn: s.soundOn !== false, activeId: s.activeId || base.activeId,
+                 customTemplates: Array.isArray(s.customTemplates) ? s.customTemplates : [],
                  profiles: Object.assign(base.profiles, s.profiles || {}) };
       } catch (e) { return defaultState(); }
     }
@@ -692,7 +741,28 @@
       });
     }
 
-    function renderAll() { renderProfiles(); renderGame(); renderLeaderboard(); renderThemes(); renderHistory(); }
+    function renderQuest() {
+      const p = profile(), q = $("quest");
+      if (p.questDay === todayKey()) { q.classList.add("done"); q.textContent = "✅ Today’s quest complete — nice work, " + p.name + "! Come back tomorrow."; }
+      else { q.classList.remove("done"); q.textContent = "🎯 Today’s quest: log 1 event for a +15 XP bonus!"; }
+    }
+
+    function renderNudge() {
+      const p = profile(), n = $("nudge");
+      if (p.questDay === todayKey()) { n.classList.remove("show"); return; }
+      let days = Infinity;
+      if (p.lastDay) {
+        const last = new Date(p.lastDay + "T00:00:00"), now = new Date(todayKey() + "T00:00:00");
+        days = Math.round((now - last) / 86400000);
+      }
+      let text = "";
+      if (!p.lastDay) text = "👋 Hi " + p.name + "! Add your first event and grab the +15 XP daily bonus. 🎯";
+      else if (days >= 3) text = "👋 It’s been " + days + " days, " + p.name + " — anything coming up? Log it for +15 XP and keep Dad in the loop!";
+      else if (p.streak >= 1) text = "🔥 You’ve got a " + p.streak + "-day streak going, " + p.name + " — log something today to keep it alive!";
+      if (text) { $("nudgeText").textContent = text; n.classList.add("show"); } else n.classList.remove("show");
+    }
+
+    function renderAll() { renderProfiles(); renderGame(); renderLeaderboard(); renderThemes(); renderHistory(); renderQuest(); renderNudge(); }
 
     function friendlyWhen(iso) {
       const then = new Date(iso);
@@ -715,6 +785,8 @@
       if (ev.repeatType && ev.repeatType !== "none") gained += 5;
 
       const today = todayKey();
+      let questJustDone = false;
+      if (p.questDay !== today) { gained += 15; p.questDay = today; questJustDone = true; }
       if (p.lastDay !== today) {
         const d = new Date(); d.setDate(d.getDate() - 1);
         const yesterday = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
@@ -747,7 +819,8 @@
       else if (newBadges.length) {
         const b = BADGES.find(x => x.id === newBadges[0]);
         msg = b.emoji + " New badge: " + b.title.split(" — ")[0] + "! +" + gained + " XP"; sfx("badge");
-      } else { sfx("add"); }
+      } else if (questJustDone) { msg = "🎯 Daily quest done! +" + gained + " XP (incl. +15 bonus). Dad’s notified."; sfx("level"); }
+      else { sfx("add"); }
       showToast(msg);
     }
 
@@ -1043,6 +1116,33 @@
         b.addEventListener("click", () => applyTemplate(t));
         row.appendChild(b);
       });
+      state.customTemplates.forEach((t, idx) => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip custom";
+        b.innerHTML = t.label + ' <span class="x" title="remove">✕</span>';
+        b.addEventListener("click", e => {
+          if (e.target.classList.contains("x")) {
+            state.customTemplates.splice(idx, 1); saveState(); sfx("pop"); renderTemplates(); return;
+          }
+          applyTemplate(t);
+        });
+        row.appendChild(b);
+      });
+    }
+
+    function saveCurrentAsTemplate() {
+      const title = titleInput.value.trim();
+      if (!title) { showToast("Fill in at least a name first, then save it as a button. 🌸"); setError("fg-title", true); return; }
+      const label = (emojiSelect.value || guessEmoji(title)) + " " + title;
+      state.customTemplates.push({
+        label, title, emoji: emojiSelect.value,
+        start: startTimeInput.value, end: endTimeInput.value,
+        loc: locationNameInput.value.trim(), desc: descriptionInput.value.trim(),
+        repeat: repeatTypeSelect.value, count: repeatCountInput.value.trim()
+      });
+      if (state.customTemplates.length > 24) state.customTemplates.shift();
+      saveState(); sfx("badge"); renderTemplates();
+      showToast("💾 Saved! “" + title + "” is now a one-tap button up top.");
     }
 
     function renderDateChips() {
@@ -1121,6 +1221,35 @@
 
     wireMic("micTitle", titleInput);
     wireMic("micDesc", descriptionInput);
+
+    // edit the active profile (rename + change face)
+    $("editBtn").addEventListener("click", () => {
+      const p = profile();
+      const name = prompt("Name for this profile:", p.name);
+      if (name && name.trim()) p.name = name.trim().slice(0, 16);
+      const faces = ["👧","🧒","👦","👩","👨","🧑","🦄","🐱","🐶","🦊","🐼","⭐","🌟","🚀","🦖","🐢","🦋","🌈"];
+      const face = prompt("Pick a face — copy one of these (or paste any emoji):\n" + faces.join("  "), p.face);
+      if (face && face.trim()) p.face = face.trim().slice(0, 4);
+      saveState(); sfx("pop"); renderAll();
+    });
+
+    $("saveTplBtn").addEventListener("click", saveCurrentAsTemplate);
+    $("nudgeClose").addEventListener("click", () => $("nudge").classList.remove("show"));
+
+    // install as an app
+    let deferredPrompt = null;
+    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredPrompt = e; $("installBtn").classList.add("show"); });
+    $("installBtn").addEventListener("click", async () => {
+      if (!deferredPrompt) { showToast("On iPhone: tap Share ▸ “Add to Home Screen”. 📲"); return; }
+      deferredPrompt.prompt(); await deferredPrompt.userChoice;
+      deferredPrompt = null; $("installBtn").classList.remove("show");
+    });
+    window.addEventListener("appinstalled", () => { $("installBtn").classList.remove("show"); showToast("🎉 S.A.R.A.H. is now on your home screen!"); });
+
+    // register service worker (enables offline + installable)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+    }
 
     renderTemplates(); renderDateChips(); renderTimeChips();
     applyTheme(profile().theme);

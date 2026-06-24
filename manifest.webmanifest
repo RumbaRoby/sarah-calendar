@@ -1,0 +1,14 @@
+{
+  "name": "S.A.R.A.H. Calendar Helper",
+  "short_name": "S.A.R.A.H.",
+  "description": "A fun, game-like calendar helper for the whole family. Earn XP, keep streaks, and keep everyone in the loop.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdf7ff",
+  "theme_color": "#7a267b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
