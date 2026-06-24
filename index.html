@@ -104,7 +104,18 @@
     .levelstrip-xp { font-size: 0.66rem; font-weight: 800; color: var(--muted); white-space: nowrap; }
 
     /* ---------- CONTENT + CARDS ---------- */
-    .content { flex: 1; padding: 14px 14px 96px; overflow-x: hidden; }
+    .content { flex: 1; padding: 14px 14px 150px; overflow-x: hidden; }
+
+    .more-toggle { width: 100%; background: var(--chip-bg); color: var(--accent-deep);
+      border: 1px dashed var(--chip-border); border-radius: 12px; padding: 12px;
+      font-size: 0.84rem; font-weight: 800; cursor: pointer; margin: 4px 0 14px; font-family: inherit; }
+    .more-toggle:active { transform: translateY(1px); }
+
+    .fab-bar { position: fixed; left: 50%; transform: translateX(-50%);
+      bottom: calc(60px + env(safe-area-inset-bottom)); width: 100%; max-width: 540px;
+      padding: 0 14px; z-index: 25; display: flex; pointer-events: none; }
+    .fab-bar .btn-primary { pointer-events: auto; width: 100%; flex: 1;
+      box-shadow: 0 14px 30px -8px var(--primary-shadow), 0 5px 14px rgba(0,0,0,0.22); }
     .tab-panel { display: block; animation: fade .25s ease; }
     .tab-panel[hidden] { display: none; }
     @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -339,27 +350,9 @@
             <div class="field-msg">Give it a name so we know what it is. 🌸</div>
           </div>
 
-          <div class="field-group row">
-            <div>
-              <label for="emoji">Emoji</label>
-              <select id="emoji">
-                <option value="">Auto ✨</option>
-                <option value="🎶">🎶 Music / Choir</option>
-                <option value="🏀">🏀 Basketball</option>
-                <option value="⚾">⚾ Baseball</option>
-                <option value="🎻">🎻 Music Lesson</option>
-                <option value="🎭">🎭 Show / Performance</option>
-                <option value="🎓">🎓 School Thing</option>
-                <option value="📚">📚 Homework / Study</option>
-                <option value="🎡">🎡 Fun Event</option>
-                <option value="🦁">🦁 Zoo / Animals</option>
-                <option value="⭐">⭐ Other</option>
-              </select>
-            </div>
-            <div>
-              <label for="who">Who’s going?</label>
-              <input type="text" id="who" placeholder="Me, Joseph, Mom">
-            </div>
+          <div class="field-group">
+            <label for="who">Who’s going?</label>
+            <input type="text" id="who" placeholder="Me, Joseph, Mom">
           </div>
 
           <div class="field-group">
@@ -388,6 +381,26 @@
           <div class="field-group">
             <label for="locationName">Where is it?</label>
             <input type="text" id="locationName" placeholder="e.g., School Gym, Kitchen Table">
+          </div>
+
+          <button type="button" class="more-toggle" id="moreToggle">➕ More details — emoji, notes, repeat, emails</button>
+          <div id="moreFields" hidden>
+
+          <div class="field-group">
+            <label for="emoji">Emoji</label>
+            <select id="emoji">
+              <option value="">Auto ✨</option>
+              <option value="🎶">🎶 Music / Choir</option>
+              <option value="🏀">🏀 Basketball</option>
+              <option value="⚾">⚾ Baseball</option>
+              <option value="🎻">🎻 Music Lesson</option>
+              <option value="🎭">🎭 Show / Performance</option>
+              <option value="🎓">🎓 School Thing</option>
+              <option value="📚">📚 Homework / Study</option>
+              <option value="🎡">🎡 Fun Event</option>
+              <option value="🦁">🦁 Zoo / Animals</option>
+              <option value="⭐">⭐ Other</option>
+            </select>
           </div>
 
           <div class="field-group">
@@ -429,13 +442,14 @@
             <div class="dad-note">🔒 📨 Dad is <b>always</b> added automatically — so he always knows what’s up.</div>
           </div>
 
+          </div><!-- /moreFields -->
+
           <div class="btn-row">
-            <button type="button" class="btn-primary" id="gcalBtn">📲 Add to Google Calendar</button>
             <button type="button" class="btn-secondary" id="saveTplBtn">💾 Save button</button>
             <button type="button" class="btn-secondary" id="demoBtn">🎲 Example</button>
             <button type="button" class="btn-secondary" id="clearBtn">🧹 Clear</button>
           </div>
-          <div class="tiny">Google Calendar opens pre-filled — just check it and hit “Save.” ✅</div>
+          <div class="tiny">📨 Dad is always invited. Google Calendar opens pre-filled — just hit “Save.” ✅</div>
         </form>
 
         <div id="cardPreview" class="card-preview hidden">
@@ -494,6 +508,11 @@
         </div>
       </section>
     </main>
+
+    <!-- ===== FLOATING ADD BUTTON (Plan tab) ===== -->
+    <div class="fab-bar" id="fabBar">
+      <button type="button" class="btn-primary" id="gcalBtn">📲 Add to Google Calendar</button>
+    </div>
 
     <!-- ===== BOTTOM NAV ===== -->
     <nav class="tabbar">
@@ -637,6 +656,7 @@
         profiles: {
           kyleigh: newProfile("Kyleigh", "👧", "unicorn"),
           ashley:  newProfile("Ashley", "🧒", "ocean"),
+          joseph:  newProfile("Joseph", "👦", "slime"),
           mom:     newProfile("Mom", "👩", "sunset"),
           dad:     newProfile("Dad", "👨", "galaxy"),
           grandma: newProfile("Grandma", "👵", "kitty"),
@@ -1298,11 +1318,21 @@
     $("saveTplBtn").addEventListener("click", saveCurrentAsTemplate);
     $("nudgeClose").addEventListener("click", () => $("nudge").classList.remove("show"));
 
+    // ---------- MORE DETAILS TOGGLE ----------
+    const moreToggle = $("moreToggle"), moreFields = $("moreFields");
+    moreToggle.addEventListener("click", () => {
+      const open = moreFields.hidden;
+      moreFields.hidden = !open;
+      moreToggle.textContent = open ? "➖ Fewer details" : "➕ More details — emoji, notes, repeat, emails";
+      sfx("pop");
+    });
+
     // ---------- TABS ----------
     const tabPanels = { plan: $("tab-plan"), game: $("tab-game"), log: $("tab-log") };
     function showTab(tab) {
       Object.entries(tabPanels).forEach(([k, el]) => { if (el) el.hidden = (k !== tab); });
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+      $("fabBar").style.display = (tab === "plan") ? "flex" : "none";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
     document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => { showTab(b.dataset.tab); sfx("pop"); }));
@@ -1330,6 +1360,7 @@
     }
 
     renderTemplates(); renderDateChips(); renderTimeChips();
+    if (!dateInput.value) dateInput.value = isoFor(new Date()); // default to today for speed
     applyTheme(profile().theme);
     renderAll();
     showTab("plan");
