@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>🌸 S.A.R.A.H. Calendar Helper</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <!-- Installable app (add to home screen) -->
   <meta name="theme-color" content="#7a267b">
@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-title" content="S.A.R.A.H.">
 
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     :root {
       /* themed variables — overwritten by applyTheme() */
@@ -30,468 +30,477 @@
       --chip-bg: #faf5ff;
       --chip-border: #e6d4ff;
       --chip-text: #5b4ea3;
+      /* fixed neutrals */
+      --ink: #1f1a2e;
+      --muted: #837b95;
+      --line: rgba(20,12,40,0.08);
+      --card: #ffffff;
+      --shell: #f4f2f9;
+      --radius: 18px;
     }
 
+    html, body { margin: 0; padding: 0; }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg-grad);
-      background-attachment: fixed;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      transition: background 0.4s ease;
+      background: var(--bg-grad); background-attachment: fixed;
+      color: var(--ink); min-height: 100vh;
+      display: flex; justify-content: center;
+      -webkit-font-smoothing: antialiased; transition: background 0.4s ease;
     }
 
-    .app {
-      width: 100%;
-      max-width: 640px;
-      margin: 16px;
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 18px 16px 24px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    .app-shell {
+      width: 100%; max-width: 540px; min-height: 100vh;
+      background: var(--shell); display: flex; flex-direction: column;
+      position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.12);
     }
 
-    h1 { margin-top: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.4rem; }
-    h1 span { font-size: 1.8rem; }
+    /* ---------- APPBAR ---------- */
+    .appbar {
+      position: sticky; top: 0; z-index: 30;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+      border-bottom: 1px solid var(--line); padding: 10px 14px 9px;
+    }
+    .appbar-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .brand { display: flex; align-items: center; gap: 9px; }
+    .brand-mark {
+      width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+      font-size: 1.2rem; background: var(--gamebar-grad); box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+    .brand-text b { font-size: 1.02rem; letter-spacing: 0.5px; }
+    .brand-text i { font-style: normal; font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+    .appbar-actions { display: flex; align-items: center; gap: 6px; }
 
-    .subtitle { font-size: 0.92rem; color: #666; margin-bottom: 12px; }
-
-    .pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--pill-bg); color: var(--pill-fg);
-      font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+    .install-btn { display: none; width: auto; padding: 7px 11px; font-size: 0.74rem;
+      border-radius: 999px; background: var(--accent); color: #fff; border: none; font-weight: 800;
+      cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.16); }
+    .install-btn.show { display: inline-flex; }
+    .edit-btn, .icon-toggle {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
+      background: #fff; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     }
 
-    /* ---------- PROFILE BAR ---------- */
-    .profilebar {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 12px; flex-wrap: wrap;
-    }
-    .who-label { font-size: 0.82rem; font-weight: 700; color: var(--accent-deep); }
-    .avatars { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+    /* ---------- WHO STRIP ---------- */
+    .who-strip { margin-top: 9px; }
+    .avatars { display: flex; gap: 8px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+    .avatars::-webkit-scrollbar { display: none; }
     .avatar {
-      display: inline-flex; flex-direction: column; align-items: center;
-      gap: 1px; border: 2px solid transparent; background: #f6f0ff;
-      border-radius: 14px; padding: 5px 9px; cursor: pointer;
-      font-size: 0.7rem; font-weight: 600; color: #5b4ea3;
-      transition: transform 0.1s ease, border 0.15s ease;
+      flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      min-width: 58px; padding: 6px 8px; border-radius: 14px; cursor: pointer;
+      background: #fff; border: 1.5px solid var(--line); color: var(--ink);
+      font-size: 0.66rem; font-weight: 700; transition: transform .12s, border-color .15s, box-shadow .15s;
     }
-    .avatar .face { font-size: 1.4rem; }
-    .avatar:active { transform: scale(0.94); }
-    .avatar.active { border-color: var(--accent); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .icon-toggle {
-      background: #f4f0ff; border: none; border-radius: 50%;
-      width: 38px; height: 38px; font-size: 1.1rem; cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center;
-    }
+    .avatar .face { font-size: 1.5rem; line-height: 1; }
+    .avatar:active { transform: scale(.93); }
+    .avatar.active { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
 
-    /* ---------- GAME BAR ---------- */
-    .gamebar {
-      background: var(--gamebar-grad);
-      color: #fff; border-radius: 16px; padding: 12px 14px; margin-bottom: 12px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-    }
-    .gamebar-top {
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
-    }
-    .stat {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: 0.85rem; font-weight: 600;
-      background: rgba(255,255,255,0.18); padding: 4px 10px; border-radius: 999px;
-    }
-    .stat .big { font-size: 1.05rem; }
-    .level-name { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-    .xpbar-track { height: 12px; background: rgba(255,255,255,0.25); border-radius: 999px; overflow: hidden; }
-    .xpbar-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, #ffe9a8, #ffd166);
-      border-radius: 999px; transition: width 0.6s cubic-bezier(.2,.9,.3,1);
-    }
-    .xptext { font-size: 0.72rem; margin-top: 4px; opacity: 0.95; text-align: right; }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .badge {
-      font-size: 1.15rem; width: 30px; height: 30px;
-      display: inline-flex; align-items: center; justify-content: center;
-      border-radius: 50%; background: rgba(255,255,255,0.15); cursor: help;
-      transition: transform 0.15s ease;
-    }
-    .badge.locked { filter: grayscale(1); opacity: 0.35; }
-    .badge.earned { background: rgba(255,255,255,0.35); }
-    .badge.earned:hover { transform: scale(1.2) rotate(-6deg); }
+    /* ---------- LEVEL STRIP ---------- */
+    .levelstrip { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .levelstrip-label { font-size: 0.7rem; font-weight: 800; color: var(--accent-deep);
+      white-space: nowrap; max-width: 46%; overflow: hidden; text-overflow: ellipsis; }
+    .mini-xp { flex: 1; height: 7px; background: rgba(20,12,40,0.10); border-radius: 999px; overflow: hidden; }
+    .mini-xp-fill { height: 100%; width: 0%; background: var(--gamebar-grad); border-radius: 999px; transition: width .6s cubic-bezier(.2,.9,.3,1); }
+    .levelstrip-xp { font-size: 0.66rem; font-weight: 800; color: var(--muted); white-space: nowrap; }
 
-    /* ---------- LEADERBOARD ---------- */
-    .leaderboard {
-      display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;
-      font-size: 0.78rem;
+    /* ---------- CONTENT + CARDS ---------- */
+    .content { flex: 1; padding: 14px 14px 96px; overflow-x: hidden; }
+    .tab-panel { display: block; animation: fade .25s ease; }
+    .tab-panel[hidden] { display: none; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 15px; margin-bottom: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 28px -20px rgba(0,0,0,0.28);
     }
-    .lb-item {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: #fbf6ff; border: 1px solid #efe2ff; border-radius: 999px;
-      padding: 4px 10px; font-weight: 600; color: #5b4ea3;
-    }
-    .lb-item.leader { background: #fff5d6; border-color: #ffd86b; color: #8a6d00; }
-    .lb-rank { opacity: 0.7; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      font-size: 0.95rem; font-weight: 800; margin-bottom: 12px; color: var(--ink); }
+    .card-sub { font-size: 0.68rem; font-weight: 700; color: var(--muted); }
 
-    /* ---------- SECTION LABELS / CHIPS ---------- */
-    .section { margin-bottom: 14px; }
-    .section-label { font-size: 0.8rem; font-weight: 700; color: var(--accent-deep); margin-bottom: 6px; }
-    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    /* ---------- CHIPS ---------- */
+    .hscroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .hscroll::-webkit-scrollbar { display: none; }
+    .hscroll .chip { flex: 0 0 auto; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
     .chip {
       border: 1px solid var(--chip-border); background: var(--chip-bg); color: var(--chip-text);
-      border-radius: 999px; padding: 6px 12px; font-size: 0.82rem; font-weight: 600;
-      cursor: pointer; transition: transform 0.08s ease, background 0.15s ease;
+      border-radius: 999px; padding: 9px 14px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      white-space: nowrap; display: inline-flex; align-items: center; transition: transform .08s, filter .15s;
     }
-    .chip:hover { filter: brightness(0.97); }
-    .chip:active { transform: scale(0.95); }
-    .chip.locked { opacity: 0.5; cursor: not-allowed; }
-    .chip.theme-active { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .chip:active { transform: scale(.95); }
+    .chip.locked { opacity: .5; }
+    .chip .x { margin-left: 6px; opacity: .5; font-weight: 800; }
+    .chip.custom { border-style: dashed; }
 
-    form { margin-top: 8px; }
-    .field-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 3px; }
-    .hint { font-size: 0.75rem; color: #777; margin-bottom: 3px; }
-
+    /* ---------- FORM ---------- */
+    .form-card label { display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 5px; color: var(--ink); }
+    .field-group { margin-bottom: 15px; }
+    .field-group:last-of-type { margin-bottom: 0; }
+    .hint { font-size: 0.72rem; color: var(--muted); margin-bottom: 7px; }
     input[type="text"], input[type="date"], input[type="time"],
     textarea, select, input[type="number"] {
-      width: 100%; padding: 9px 11px; border-radius: 10px; border: 1px solid #ddd;
-      font-size: 0.95rem; outline: none;
-      transition: border 0.15s ease, box-shadow 0.15s ease; background-color: #fdfbff;
+      width: 100%; padding: 12px 13px; border-radius: 12px; border: 1.5px solid var(--line);
+      font-size: 0.95rem; outline: none; background: #fbfaff; color: var(--ink); min-height: 46px;
+      transition: border .15s, box-shadow .15s; font-family: inherit;
     }
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent); box-shadow: 0 0 0 2px rgba(197,115,255,0.25); background-color: #fff;
-    }
-
-    .input-with-mic { display: flex; gap: 6px; align-items: stretch; }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(197,115,255,0.18); background: #fff; }
+    .input-with-mic { display: flex; gap: 8px; }
     .input-with-mic input, .input-with-mic textarea { flex: 1; }
-    .mic-btn {
-      flex: 0 0 auto; width: 44px; border-radius: 10px; border: 1px solid var(--chip-border);
-      background: var(--chip-bg); font-size: 1.1rem; cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center;
-    }
+    .mic-btn { flex: 0 0 auto; width: 48px; border-radius: 12px; border: 1.5px solid var(--chip-border);
+      background: var(--chip-bg); font-size: 1.15rem; cursor: pointer; }
     .mic-btn.listening { background: #ffe0e0; border-color: #ff9aa2; animation: pulse 1s infinite; }
-    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,107,138,0.5);} 50% { box-shadow: 0 0 0 6px rgba(255,107,138,0);} }
-
-    .field-error input, .field-error select { border-color: #ff6b8a; box-shadow: 0 0 0 2px rgba(255,107,138,0.2); }
-    .field-msg { font-size: 0.74rem; color: #d6336c; margin-top: 3px; display: none; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,107,138,.5);} 50% { box-shadow: 0 0 0 7px rgba(255,107,138,0);} }
+    .field-error input, .field-error select { border-color: #ff6b8a; box-shadow: 0 0 0 3px rgba(255,107,138,.18); }
+    .field-msg { font-size: 0.72rem; color: #d6336c; margin-top: 5px; display: none; }
     .field-error .field-msg { display: block; }
-
-    .shake { animation: shake 0.35s; }
+    .shake { animation: shake .35s; }
     @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
-
-    textarea { min-height: 60px; resize: vertical; }
+    textarea { min-height: 64px; resize: vertical; }
     .row { display: flex; gap: 10px; }
     .row > div { flex: 1; }
 
-    .btn-row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-    button {
-      border-radius: 999px; border: none; padding: 11px 18px;
-      font-size: 0.95rem; font-weight: 700; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
-    }
-    button:active { transform: translateY(1px); box-shadow: none; }
+    /* ---------- BUTTONS ---------- */
+    .btn-row { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
     .btn-primary {
-      background: var(--primary); color: #fff; box-shadow: 0 4px 10px var(--primary-shadow);
-      flex: 1; min-width: 200px; justify-content: center; font-size: 1.05rem; padding: 13px 18px;
+      flex: 1 1 100%; justify-content: center; border: none; cursor: pointer;
+      background: var(--primary); color: #fff; border-radius: 14px; padding: 15px;
+      font-size: 1.05rem; font-weight: 800; box-shadow: 0 10px 20px -8px var(--primary-shadow);
+      display: inline-flex; align-items: center; gap: 8px; transition: transform .08s; font-family: inherit;
     }
-    .btn-secondary { background: #f4f0ff; color: #5b4ea3; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-
+    .btn-primary:active { transform: translateY(1px) scale(.997); }
+    .btn-secondary {
+      flex: 1 1 auto; justify-content: center; border: 1px solid var(--line); cursor: pointer;
+      background: #fff; color: var(--accent-deep); border-radius: 12px; padding: 11px 12px;
+      font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
+    }
+    .btn-secondary:active { transform: translateY(1px); }
+    .tiny { font-size: 0.72rem; color: var(--muted); margin-top: 10px; text-align: center; }
     .dad-note {
-      font-size: 0.76rem; color: var(--accent-deep); background: #f6f0ff;
-      border: 1px dashed var(--chip-border); border-radius: 10px;
-      padding: 6px 10px; margin-top: 6px; display: flex; align-items: center; gap: 6px;
+      font-size: 0.74rem; color: var(--accent-deep);
+      background: linear-gradient(90deg, rgba(197,115,255,0.09), transparent);
+      border: 1px dashed var(--chip-border); border-radius: 12px; padding: 9px 11px; margin-top: 8px;
+      display: flex; align-items: center; gap: 6px; line-height: 1.35;
     }
 
-    .output-section { margin-top: 18px; border-top: 1px dashed #e5d7ff; padding-top: 14px; }
-    .output-section h2 { font-size: 1.1rem; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
-    .card-preview {
-      border-radius: 14px; padding: 12px 12px 10px; margin-bottom: 8px;
-      background: #fff7ff; border: 1px solid #f1dfff; position: relative; overflow: hidden;
-    }
-    .card-preview::after { content: "✨"; position: absolute; right: 10px; bottom: 6px; opacity: 0.4; font-size: 1.2rem; }
-    .card-title { font-weight: 700; margin-bottom: 4px; font-size: 1rem; }
-    .card-line { font-size: 0.9rem; margin-bottom: 2px; }
-    .card-note { font-size: 0.82rem; color: #6b5a9c; margin-top: 4px; }
+    /* ---------- NUDGE ---------- */
+    .nudge { display: none; align-items: center; gap: 8px;
+      background: linear-gradient(90deg,#fff6e0,#fff1d2); border: 1px solid #ffe2a8; color: #8a6500;
+      border-radius: 14px; padding: 11px 13px; margin-bottom: 14px; font-size: 0.84rem; font-weight: 600; }
+    .nudge.show { display: flex; }
+    .nudge .x { margin-left: auto; cursor: pointer; opacity: .6; font-weight: 800; background: none; border: none; font-size: 0.95rem; color: inherit; }
+
+    /* ---------- PREVIEW ---------- */
+    .card-preview { border-radius: 16px; padding: 14px; margin-bottom: 10px; background: #fff7ff;
+      border: 1px solid #f1dfff; position: relative; overflow: hidden; box-shadow: 0 12px 28px -20px rgba(0,0,0,.3); }
+    .card-preview::after { content: "✨"; position: absolute; right: 12px; bottom: 8px; opacity: .4; font-size: 1.3rem; }
+    .card-title { font-weight: 800; margin-bottom: 6px; font-size: 1.05rem; }
+    .card-line { font-size: 0.9rem; margin-bottom: 3px; color: #3c3550; }
+    .card-note { font-size: 0.8rem; color: #6b5a9c; margin-top: 6px; }
     .card-preview.hidden, .encouragement.hidden { display: none; }
-    .encouragement { margin-top: 10px; font-size: 0.88rem; color: #444; display: flex; align-items: flex-start; gap: 6px; }
-    .encouragement span.emoji { font-size: 1.1rem; flex-shrink: 0; }
-    .tiny { font-size: 0.75rem; color: #888; margin-top: 8px; text-align: center; }
-    .quote { margin-top: 4px; font-size: 0.78rem; color: #7a6bb4; font-style: italic; }
-
+    .encouragement { font-size: 0.86rem; color: #4a4458; display: flex; align-items: flex-start; gap: 7px; padding: 2px; }
+    .encouragement .emoji { font-size: 1.1rem; flex-shrink: 0; }
+    .quote { margin-top: 4px; font-size: 0.76rem; color: #7a6bb4; font-style: italic; }
     .mood-softpink { background: #fff3fc; border-color: #ffc8f3; }
     .mood-sunrise  { background: #fff7e3; border-color: #ffd593; }
     .mood-ocean    { background: #eaf7ff; border-color: #9ad1ff; }
     .mood-mint     { background: #e9fff6; border-color: #a3f2cf; }
 
+    /* ---------- GAMEBAR (hero) ---------- */
+    .gamebar { background: var(--gamebar-grad); color: #fff; border-radius: 20px; padding: 16px;
+      margin-bottom: 14px; box-shadow: 0 16px 34px -16px rgba(0,0,0,.5); position: relative; overflow: hidden; }
+    .gamebar::after { content: ""; position: absolute; inset: 0;
+      background: radial-gradient(140px 90px at 88% -12%, rgba(255,255,255,0.28), transparent); pointer-events: none; }
+    .gamebar-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .level-name { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    .stat { display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 700;
+      background: rgba(255,255,255,0.2); padding: 5px 11px; border-radius: 999px; }
+    .stat .big { font-size: 1rem; }
+    .xpbar-track { height: 14px; background: rgba(255,255,255,0.25); border-radius: 999px; overflow: hidden; }
+    .xpbar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ffe9a8, #ffd166); border-radius: 999px; transition: width .6s cubic-bezier(.2,.9,.3,1); }
+    .xptext { font-size: 0.72rem; margin-top: 6px; opacity: .95; text-align: right; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .badge { font-size: 1.15rem; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(255,255,255,0.16); cursor: help; transition: transform .15s; }
+    .badge.locked { filter: grayscale(1); opacity: .32; }
+    .badge.earned { background: rgba(255,255,255,0.38); }
+    .badge.earned:active { transform: scale(1.2) rotate(-6deg); }
+    .quest { margin-top: 13px; background: rgba(255,255,255,0.18); border-radius: 12px; padding: 9px 12px;
+      font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .quest.done { background: rgba(255,255,255,0.34); }
+
+    /* ---------- LEADERBOARD ---------- */
+    .leaderboard { display: flex; flex-direction: column; gap: 8px; }
+    .lb-item { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 13px;
+      background: #faf8ff; border: 1px solid var(--line); }
+    .lb-item.leader { background: linear-gradient(90deg,#fff7d6,#fffaf0); border-color: #ffdf80; }
+    .lb-item.me { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .lb-rank { width: 26px; text-align: center; font-weight: 800; font-size: 0.9rem; color: var(--muted); }
+    .lb-face { font-size: 1.4rem; }
+    .lb-name { flex: 1; font-weight: 800; font-size: 0.9rem; display: flex; flex-direction: column; line-height: 1.1; }
+    .lb-name small { font-weight: 600; font-size: 0.68rem; color: var(--muted); }
+    .lb-xp { font-weight: 800; font-size: 1rem; color: var(--accent-deep); display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+    .lb-xp small { font-weight: 700; font-size: 0.6rem; color: var(--muted); }
+
+    /* ---------- SKINS ---------- */
+    .chip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .skin { display: flex; align-items: center; gap: 9px; padding: 9px; border-radius: 14px;
+      border: 1.5px solid var(--line); background: #fff; cursor: pointer; text-align: left; transition: transform .08s, border-color .15s; }
+    .skin:active { transform: scale(.97); }
+    .skin-active { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .skin-locked { opacity: .55; }
+    .skin-swatch { width: 30px; height: 30px; border-radius: 9px; flex: 0 0 auto; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08); }
+    .skin-name { flex: 1; font-size: 0.8rem; font-weight: 800; color: var(--ink); }
+    .skin-tag { font-size: 0.62rem; font-weight: 800; color: var(--muted); white-space: nowrap; }
+    .skin-active .skin-tag { color: var(--accent-deep); }
+
     /* ---------- HISTORY ---------- */
-    .history-section { margin-top: 20px; border-top: 1px dashed #e5d7ff; padding-top: 14px; }
-    .history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .history-head h2 { font-size: 1.1rem; margin: 0; }
-    .lastused { font-size: 0.78rem; color: var(--accent-deep); background: #faf3ff; padding: 4px 10px; border-radius: 999px; }
-    .history-list { list-style: none; padding: 0; margin: 0; }
-    .history-item {
-      font-size: 0.85rem; padding: 8px 10px; border-radius: 10px;
-      background: #fbf8ff; border: 1px solid #f0e6ff; margin-bottom: 6px;
-      display: flex; justify-content: space-between; gap: 10px;
-    }
-    .history-item .when { color: #999; font-size: 0.74rem; white-space: nowrap; }
-    .history-empty { font-size: 0.82rem; color: #999; font-style: italic; }
-    .link-btn { background: none; border: none; color: var(--accent); font-size: 0.76rem; cursor: pointer; padding: 2px 4px; font-weight: 600; }
+    .lastused { font-size: 0.7rem; font-weight: 700; color: var(--accent-deep); background: var(--chip-bg); padding: 4px 9px; border-radius: 999px; }
+    .history-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 7px; }
+    .history-item { font-size: 0.85rem; padding: 10px 12px; border-radius: 12px; background: #faf8ff;
+      border: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px; font-weight: 600; }
+    .history-item .when { color: var(--muted); font-size: 0.72rem; white-space: nowrap; font-weight: 600; }
+    .history-empty { font-size: 0.82rem; color: var(--muted); font-style: italic; }
+    .link-btn { background: none; border: none; color: var(--accent); font-size: 0.74rem; cursor: pointer; padding: 6px 2px 0; font-weight: 700; }
+
+    /* ---------- TABBAR ---------- */
+    .tabbar { position: sticky; bottom: 0; z-index: 30; display: flex;
+      background: rgba(255,255,255,0.82); backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+      border-top: 1px solid var(--line); }
+    .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 9px 0 calc(9px + env(safe-area-inset-bottom)); background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 0.64rem; font-weight: 800; font-family: inherit; transition: color .15s; }
+    .tab-btn .ic { font-size: 1.3rem; line-height: 1; transition: transform .15s; }
+    .tab-btn.active { color: var(--accent-deep); }
+    .tab-btn.active .ic { transform: translateY(-1px) scale(1.08); }
 
     /* ---------- TOAST + CONFETTI ---------- */
     #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; }
-    .toast {
-      position: fixed; left: 50%; bottom: 24px;
-      transform: translateX(-50%) translateY(120px);
-      background: #2b2140; color: #fff; padding: 12px 20px; border-radius: 14px;
-      font-size: 0.95rem; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      z-index: 9999; opacity: 0; transition: transform 0.4s cubic-bezier(.2,.9,.3,1), opacity 0.4s;
-      text-align: center; max-width: 90%;
-    }
+    .toast { position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%) translateY(120px);
+      background: #2b2140; color: #fff; padding: 13px 20px; border-radius: 14px; font-size: 0.92rem; font-weight: 700;
+      box-shadow: 0 12px 30px rgba(0,0,0,.38); z-index: 9999; opacity: 0;
+      transition: transform .4s cubic-bezier(.2,.9,.3,1), opacity .4s; text-align: center; max-width: 90%; }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-    /* ---------- NUDGE + QUEST + INSTALL ---------- */
-    .nudge {
-      display: none; align-items: center; gap: 8px;
-      background: #fff6e0; border: 1px solid #ffe2a8; color: #8a6500;
-      border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.86rem;
-    }
-    .nudge.show { display: flex; }
-    .nudge .x { margin-left: auto; cursor: pointer; opacity: 0.6; font-weight: 700; background:none;border:none;font-size:0.9rem; }
-    .quest {
-      margin-top: 10px; background: rgba(255,255,255,0.16); border-radius: 10px;
-      padding: 7px 10px; font-size: 0.82rem; font-weight: 600;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .quest.done { background: rgba(255,255,255,0.32); }
-    .install-btn {
-      display: none; background: #fff; color: var(--accent-deep);
-      border: 2px solid var(--accent); margin-bottom: 12px; width: 100%;
-      justify-content: center; font-size: 0.95rem;
-    }
-    .install-btn.show { display: inline-flex; }
-    .edit-btn {
-      background: #f4f0ff; border: none; border-radius: 50%;
-      width: 38px; height: 38px; font-size: 1rem; cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center;
-    }
-    .chip .x { margin-left: 5px; opacity: 0.55; font-weight: 700; }
-    .chip.custom { border-style: dashed; }
-
-    @media (max-width: 480px) { .row { flex-direction: column; } }
+    @media (min-width: 541px) { .app-shell { margin: 0 auto; } }
   </style>
 </head>
 <body>
   <canvas id="confetti"></canvas>
 
-  <div class="app">
-    <div class="pill">
-      🌸 S.A.R.A.H. · Simple Assistant for Reminders, Activities &amp; Homework
-    </div>
-
-    <h1><span>📆</span> Calendar Helper</h1>
-    <div class="subtitle">
-      Tell me what’s happening — type it or tap the 🎤 to say it.
-      Then hit the big green button. Everyone stays in the loop. ✨
-    </div>
-
-    <div class="nudge" id="nudge">
-      <span id="nudgeText"></span>
-      <button class="x" id="nudgeClose" title="dismiss">✕</button>
-    </div>
-
-    <button type="button" class="btn-secondary install-btn" id="installBtn">📲 Install S.A.R.A.H. as an app</button>
-
-    <!-- ===== PROFILE BAR ===== -->
-    <div class="profilebar">
-      <div class="who-label">Who’s planning?</div>
-      <div class="avatars" id="avatars"></div>
-      <button class="edit-btn" id="editBtn" title="Rename / change face">✏️</button>
-      <button class="icon-toggle" id="soundBtn" title="Sound on/off">🔊</button>
-    </div>
-
-    <!-- ===== GAME BAR ===== -->
-    <div class="gamebar">
-      <div class="gamebar-top">
-        <div class="level-name"><span id="levelEmoji">🌱</span> <span id="levelName">Sprout Planner</span> · Lvl <span id="levelNum">1</span></div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-          <span class="stat">🔥 <span class="big" id="streakNum">0</span> day streak</span>
-          <span class="stat">📅 <span class="big" id="totalNum">0</span> planned</span>
+  <div class="app-shell">
+    <!-- ===== APP BAR ===== -->
+    <header class="appbar">
+      <div class="appbar-row">
+        <div class="brand">
+          <span class="brand-mark">🌸</span>
+          <span class="brand-text"><b>S.A.R.A.H.</b><i>Family Calendar</i></span>
         </div>
-      </div>
-      <div class="xpbar-track"><div class="xpbar-fill" id="xpFill"></div></div>
-      <div class="xptext" id="xpText">0 / 100 XP</div>
-      <div class="badge-row" id="badgeRow"></div>
-      <div class="quest" id="quest">🎯 Today’s quest: log 1 event for a +15 XP bonus!</div>
-    </div>
-
-    <!-- ===== LEADERBOARD ===== -->
-    <div class="leaderboard" id="leaderboard"></div>
-
-    <!-- ===== THEME / VIBE PICKER ===== -->
-    <div class="section">
-      <div class="section-label">🎨 Pick your vibe (your skin saves to your profile):</div>
-      <div class="chip-row" id="themeRow"></div>
-    </div>
-
-    <!-- ===== QUICK TEMPLATES ===== -->
-    <div class="section">
-      <div class="section-label">⚡ Quick start — tap one and it fills in for you:</div>
-      <div class="chip-row" id="chipRow"></div>
-    </div>
-
-    <form id="eventForm">
-      <div class="field-group" id="fg-title">
-        <label for="title">1) What is this?</label>
-        <div class="hint">Type it or tap 🎤 to say it. Example: Choir Rehearsal, Baseball Practice</div>
-        <div class="input-with-mic">
-          <input type="text" id="title" placeholder="e.g., Math Homework, Choir Rehearsal">
-          <button type="button" class="mic-btn" id="micTitle" title="Say it">🎤</button>
-        </div>
-        <div class="field-msg">Give it a name so we know what it is. 🌸</div>
-      </div>
-
-      <div class="field-group row">
-        <div>
-          <label for="emoji">Pick an emoji (optional)</label>
-          <select id="emoji">
-            <option value="">Let S.A.R.A.H. guess ✨</option>
-            <option value="🎶">🎶 Music / Choir</option>
-            <option value="🏀">🏀 Basketball</option>
-            <option value="⚾">⚾ Baseball</option>
-            <option value="🎻">🎻 Music Lesson</option>
-            <option value="🎭">🎭 Show / Performance</option>
-            <option value="🎓">🎓 School Thing</option>
-            <option value="📚">📚 Homework / Study</option>
-            <option value="🎡">🎡 Fun Event</option>
-            <option value="🦁">🦁 Zoo / Animals</option>
-            <option value="⭐">⭐ Other</option>
-          </select>
-        </div>
-        <div>
-          <label for="who">Who’s going?</label>
-          <div class="hint">Example: Me, Joseph, Dad</div>
-          <input type="text" id="who" placeholder="Me, Joseph, Mom, Dad">
+        <div class="appbar-actions">
+          <button type="button" class="install-btn" id="installBtn">📲 Install</button>
+          <button type="button" class="edit-btn" id="editBtn" title="Rename / change face">✏️</button>
+          <button type="button" class="icon-toggle" id="soundBtn" title="Sound on/off">🔊</button>
         </div>
       </div>
 
-      <div class="field-group">
-        <label>2) What day?</label>
-        <div class="hint">Tap a quick day or pick one:</div>
-        <div class="chip-row" id="dateChips" style="margin-bottom:6px;"></div>
-        <input type="date" id="date">
-        <div class="field-msg" id="dateMsg">Pick a day. 📅</div>
+      <div class="who-strip">
+        <div class="avatars" id="avatars"></div>
       </div>
 
-      <div class="field-group">
-        <label>3) What time?</label>
-        <div class="hint">Tap a quick time or set your own:</div>
-        <div class="chip-row" id="timeChips" style="margin-bottom:6px;"></div>
-        <div class="row">
-          <div id="fg-start">
-            <div class="hint">Start</div>
-            <input type="time" id="startTime">
-            <div class="field-msg">Pick a start time. ⏰</div>
+      <div class="levelstrip">
+        <div class="levelstrip-label" id="hdrLevelName">Sprout Planner</div>
+        <div class="mini-xp"><div class="mini-xp-fill" id="hdrXpFill"></div></div>
+        <div class="levelstrip-xp" id="hdrXpText">Lvl 1</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- ============ PLAN TAB ============ -->
+      <section class="tab-panel" id="tab-plan">
+        <div class="nudge" id="nudge">
+          <span id="nudgeText"></span>
+          <button class="x" id="nudgeClose" title="dismiss">✕</button>
+        </div>
+
+        <div class="card">
+          <div class="card-head">⚡ Quick add <span class="card-sub">tap to fill it in</span></div>
+          <div class="hscroll" id="chipRow"></div>
+        </div>
+
+        <form id="eventForm" class="card form-card">
+          <div class="card-head">📝 New event</div>
+
+          <div class="field-group" id="fg-title">
+            <label for="title">What is it?</label>
+            <div class="hint">Type it or tap 🎤 to say it.</div>
+            <div class="input-with-mic">
+              <input type="text" id="title" placeholder="e.g., Choir Rehearsal, Math Homework">
+              <button type="button" class="mic-btn" id="micTitle" title="Say it">🎤</button>
+            </div>
+            <div class="field-msg">Give it a name so we know what it is. 🌸</div>
           </div>
+
+          <div class="field-group row">
+            <div>
+              <label for="emoji">Emoji</label>
+              <select id="emoji">
+                <option value="">Auto ✨</option>
+                <option value="🎶">🎶 Music / Choir</option>
+                <option value="🏀">🏀 Basketball</option>
+                <option value="⚾">⚾ Baseball</option>
+                <option value="🎻">🎻 Music Lesson</option>
+                <option value="🎭">🎭 Show / Performance</option>
+                <option value="🎓">🎓 School Thing</option>
+                <option value="📚">📚 Homework / Study</option>
+                <option value="🎡">🎡 Fun Event</option>
+                <option value="🦁">🦁 Zoo / Animals</option>
+                <option value="⭐">⭐ Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="who">Who’s going?</label>
+              <input type="text" id="who" placeholder="Me, Joseph, Mom">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>What day?</label>
+            <div class="chip-row" id="dateChips" style="margin-bottom:8px;"></div>
+            <input type="date" id="date">
+            <div class="field-msg" id="dateMsg">Pick a day. 📅</div>
+          </div>
+
+          <div class="field-group">
+            <label>What time?</label>
+            <div class="chip-row" id="timeChips" style="margin-bottom:8px;"></div>
+            <div class="row">
+              <div id="fg-start">
+                <div class="hint">Start</div>
+                <input type="time" id="startTime">
+                <div class="field-msg">Pick a start time. ⏰</div>
+              </div>
+              <div>
+                <div class="hint">End (optional)</div>
+                <input type="time" id="endTime">
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="locationName">Where is it?</label>
+            <input type="text" id="locationName" placeholder="e.g., School Gym, Kitchen Table">
+          </div>
+
+          <div class="field-group">
+            <label for="address">Address (optional)</label>
+            <input type="text" id="address" placeholder="123 Main St, Memphis, TN">
+          </div>
+
+          <div class="field-group">
+            <label for="description">What’s it for?</label>
+            <div class="hint">1–2 sentences. (+5 bonus XP!) Type or tap 🎤.</div>
+            <div class="input-with-mic">
+              <textarea id="description" placeholder="It’s my homework time so I finish before bed."></textarea>
+              <button type="button" class="mic-btn" id="micDesc" title="Say it">🎤</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="repeatType">Does it repeat?</label>
+            <select id="repeatType">
+              <option value="none">Just this one day</option>
+              <option value="daily">Every day</option>
+              <option value="weekly">Every week</option>
+              <option value="biweekly">Every 2 weeks</option>
+              <option value="monthly">Every month</option>
+              <option value="yearly">Every year</option>
+            </select>
+          </div>
+
+          <div class="field-group" id="repeatCountGroup">
+            <label for="repeatCount">How many times total?</label>
+            <input type="number" id="repeatCount" min="2" max="366" placeholder="e.g., 8">
+          </div>
+
+          <div class="field-group">
+            <label for="emails">Email the invite to…</label>
+            <div class="hint">Add anyone else (Mom, coaches). Separate with commas.</div>
+            <input type="text" id="emails" placeholder="mom@email.com, coach@email.com"
+              value="janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com">
+            <div class="dad-note">🔒 📨 Dad is <b>always</b> added automatically — so he always knows what’s up.</div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="gcalBtn">📲 Add to Google Calendar</button>
+            <button type="button" class="btn-secondary" id="saveTplBtn">💾 Save button</button>
+            <button type="button" class="btn-secondary" id="demoBtn">🎲 Example</button>
+            <button type="button" class="btn-secondary" id="clearBtn">🧹 Clear</button>
+          </div>
+          <div class="tiny">Google Calendar opens pre-filled — just check it and hit “Save.” ✅</div>
+        </form>
+
+        <div id="cardPreview" class="card-preview hidden">
+          <div class="card-title" id="cardTitle"></div>
+          <div class="card-line" id="cardDate"></div>
+          <div class="card-line" id="cardTime"></div>
+          <div class="card-line" id="cardLocation"></div>
+          <div class="card-line" id="cardWho"></div>
+          <div class="card-line" id="cardWhat"></div>
+          <div class="card-note" id="cardNote"></div>
+        </div>
+        <div class="encouragement hidden" id="encouragement">
+          <span class="emoji">🌟</span>
           <div>
-            <div class="hint">End (optional)</div>
-            <input type="time" id="endTime">
+            <div id="encouragementText"></div>
+            <div class="quote" id="quoteText"></div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="field-group">
-        <label for="locationName">4) Where is it?</label>
-        <div class="hint">Example: Munford High School Gym, Kitchen Table, Library</div>
-        <input type="text" id="locationName" placeholder="Place name">
-      </div>
-
-      <div class="field-group">
-        <label for="address">Address (optional)</label>
-        <div class="hint">Street, city, zip if you know it.</div>
-        <input type="text" id="address" placeholder="123 Main St, Memphis, TN">
-      </div>
-
-      <div class="field-group">
-        <label for="description">5) What is this for?</label>
-        <div class="hint">Type or tap 🎤. Just 1–2 sentences. (+5 bonus XP for filling this in!)</div>
-        <div class="input-with-mic">
-          <textarea id="description" placeholder="It’s my math homework time so I can finish before bed."></textarea>
-          <button type="button" class="mic-btn" id="micDesc" title="Say it">🎤</button>
+      <!-- ============ GAME TAB ============ -->
+      <section class="tab-panel" id="tab-game" hidden>
+        <div class="gamebar">
+          <div class="gamebar-top">
+            <div class="level-name"><span id="levelEmoji">🌱</span> <span id="levelName">Sprout Planner</span> · Lvl <span id="levelNum">1</span></div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="stat">🔥 <span class="big" id="streakNum">0</span></span>
+              <span class="stat">📅 <span class="big" id="totalNum">0</span></span>
+            </div>
+          </div>
+          <div class="xpbar-track"><div class="xpbar-fill" id="xpFill"></div></div>
+          <div class="xptext" id="xpText">0 / 100 XP</div>
+          <div class="badge-row" id="badgeRow"></div>
+          <div class="quest" id="quest">🎯 Today’s quest: log 1 event for a +15 XP bonus!</div>
         </div>
-      </div>
 
-      <div class="field-group">
-        <label>6) Does this happen again?</label>
-        <div class="hint">Pick one that feels right.</div>
-        <select id="repeatType">
-          <option value="none">Just this one day</option>
-          <option value="daily">Every day</option>
-          <option value="weekly">Every week</option>
-          <option value="biweekly">Every 2 weeks</option>
-          <option value="monthly">Every month</option>
-          <option value="yearly">Every year</option>
-        </select>
-      </div>
-
-      <div class="field-group" id="repeatCountGroup">
-        <label for="repeatCount">If it repeats: how many times total?</label>
-        <div class="hint">Example: 8 practices, or 5 nights, or 3 years.</div>
-        <input type="number" id="repeatCount" min="2" max="366" placeholder="e.g., 8">
-      </div>
-
-      <div class="field-group">
-        <label for="emails">7) Who else should get the invite email?</label>
-        <div class="hint">Add anyone else (Mom, coaches, etc.). Separate with commas.</div>
-        <input type="text" id="emails" placeholder="mom@email.com, coach@email.com"
-          value="janet.l.roby.civ@us.navy.mil, janetroby67@gmail.com">
-        <div class="dad-note">🔒 📨 Dad (Jeffreylroby@gmail.com) is <b>always</b> added automatically — so he always knows what’s up.</div>
-      </div>
-
-      <div class="btn-row">
-        <button type="button" class="btn-primary" id="gcalBtn">📲 Add to Google Calendar</button>
-        <button type="button" class="btn-secondary" id="saveTplBtn">💾 Save as a button</button>
-        <button type="button" class="btn-secondary" id="demoBtn">🎲 Example</button>
-        <button type="button" class="btn-secondary" id="clearBtn">🧹 Clear</button>
-      </div>
-      <div class="tiny">After you tap the green button, Google Calendar opens. Just check it and hit “Save.” ✅</div>
-    </form>
-
-    <div class="output-section">
-      <h2>🪪 Quick Preview</h2>
-      <div id="cardPreview" class="card-preview hidden">
-        <div class="card-title" id="cardTitle"></div>
-        <div class="card-line" id="cardDate"></div>
-        <div class="card-line" id="cardTime"></div>
-        <div class="card-line" id="cardLocation"></div>
-        <div class="card-line" id="cardWho"></div>
-        <div class="card-line" id="cardWhat"></div>
-        <div class="card-note" id="cardNote"></div>
-      </div>
-      <div class="encouragement hidden" id="encouragement">
-        <span class="emoji">🌟</span>
-        <div>
-          <div id="encouragementText"></div>
-          <div class="quote" id="quoteText"></div>
+        <div class="card">
+          <div class="card-head">🏆 Family leaderboard</div>
+          <div class="leaderboard" id="leaderboard"></div>
         </div>
-      </div>
-    </div>
 
-    <div class="history-section">
-      <div class="history-head">
-        <h2>📜 Activity Log</h2>
-        <span class="lastused" id="lastUsed">Never used yet</span>
-      </div>
-      <ul class="history-list" id="historyList">
-        <li class="history-empty">Nothing here yet — add your first event to start the log! 🌟</li>
-      </ul>
-      <button type="button" class="link-btn" id="clearHistoryBtn" style="display:none;">clear log</button>
-    </div>
+        <div class="card">
+          <div class="card-head">🎨 Your vibe <span class="card-sub">unlocks as you level up</span></div>
+          <div class="chip-grid" id="themeRow"></div>
+        </div>
+      </section>
+
+      <!-- ============ LOG TAB ============ -->
+      <section class="tab-panel" id="tab-log" hidden>
+        <div class="card">
+          <div class="card-head">📜 Activity Log <span class="lastused" id="lastUsed">Never used yet</span></div>
+          <ul class="history-list" id="historyList">
+            <li class="history-empty">Nothing here yet — add your first event to start the log! 🌟</li>
+          </ul>
+          <button type="button" class="link-btn" id="clearHistoryBtn" style="display:none;">clear log</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="tabbar">
+      <button type="button" class="tab-btn active" data-tab="plan"><span class="ic">➕</span><span>Plan</span></button>
+      <button type="button" class="tab-btn" data-tab="game"><span class="ic">🏆</span><span>Game</span></button>
+      <button type="button" class="tab-btn" data-tab="log"><span class="ic">📜</span><span>Log</span></button>
+    </nav>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -562,7 +571,7 @@
         "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff3e6","--chip-border":"#ffd2a8","--chip-text":"#b8430f" } },
       galaxy: { label: "🚀 Galaxy", unlock: 3, vars: {
         "--bg-grad":"linear-gradient(160deg,#0f1024,#241b46)","--pill-bg":"#2a2350","--pill-fg":"#c9b8ff",
-        "--gamebar-grad":"linear-gradient(135deg,#3a1c71,#7b2ff7,#3a8dff)","--accent":"#9a86ff","--accent-deep":"#c9b8ff",
+        "--gamebar-grad":"linear-gradient(135deg,#3a1c71,#7b2ff7,#3a8dff)","--accent":"#9a86ff","--accent-deep":"#7a5fd0",
         "--primary":"#12b886","--primary-shadow":"rgba(18,184,134,0.4)","--chip-bg":"#f3f0ff","--chip-border":"#d9cfff","--chip-text":"#5a3fb8" } },
       kitty: { label: "🐱 Kitty", unlock: 4, vars: {
         "--bg-grad":"linear-gradient(160deg,#fff5f0,#ffe9ef)","--pill-bg":"#ffe0e6","--pill-fg":"#c2185b",
@@ -574,15 +583,15 @@
         "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.35)","--chip-bg":"#fff0f7","--chip-border":"#ffcfe7","--chip-text":"#b5179e" } },
       aurora: { label: "🌌 Aurora", unlock: 4, vars: {
         "--bg-grad":"linear-gradient(160deg,#04293a,#064663)","--pill-bg":"#0b3a4f","--pill-fg":"#8be8d8",
-        "--gamebar-grad":"linear-gradient(135deg,#1b998b,#3a86ff,#8338ec)","--accent":"#41ead4","--accent-deep":"#8be8d8",
+        "--gamebar-grad":"linear-gradient(135deg,#1b998b,#3a86ff,#8338ec)","--accent":"#16b3a0","--accent-deep":"#0a6b5a",
         "--primary":"#12b886","--primary-shadow":"rgba(18,184,134,0.4)","--chip-bg":"#eefaf7","--chip-border":"#bfeede","--chip-text":"#0a6b5a" } },
       lava: { label: "🔥 Lava", unlock: 5, vars: {
         "--bg-grad":"linear-gradient(160deg,#1a0a05,#3a1106)","--pill-bg":"#3a1709","--pill-fg":"#ffb86b",
-        "--gamebar-grad":"linear-gradient(135deg,#7a1a00,#ff4d00,#ffb703)","--accent":"#ff6b35","--accent-deep":"#ffb86b",
+        "--gamebar-grad":"linear-gradient(135deg,#7a1a00,#ff4d00,#ffb703)","--accent":"#ff6b35","--accent-deep":"#b8430f",
         "--primary":"#e8590c","--primary-shadow":"rgba(232,89,12,0.4)","--chip-bg":"#fff3ec","--chip-border":"#ffd2a8","--chip-text":"#b8430f" } },
       royal: { label: "👑 Royal", unlock: 6, vars: {
-        "--bg-grad":"linear-gradient(160deg,#1a1230,#2c1a4d)","--pill-bg":"#2c1f4a","--pill-fg":"#ffd700",
-        "--gamebar-grad":"linear-gradient(135deg,#4a0e8f,#7b2ff7,#ffd700)","--accent":"#c9a227","--accent-deep":"#ffd700",
+        "--bg-grad":"linear-gradient(160deg,#1a1230,#2c1a4d)","--pill-bg":"#2c1f4a","--pill-fg":"#c9a227",
+        "--gamebar-grad":"linear-gradient(135deg,#4a0e8f,#7b2ff7,#ffd700)","--accent":"#c9a227","--accent-deep":"#8a6d00",
         "--primary":"#0b8043","--primary-shadow":"rgba(11,128,67,0.4)","--chip-bg":"#fbf7e6","--chip-border":"#ecd98f","--chip-text":"#7a5c00" } }
     };
 
@@ -698,6 +707,14 @@
       $("xpFill").style.width = pct + "%";
       $("xpText").textContent = next ? p.xp + " / " + ceil + " XP — " + (ceil - p.xp) + " to level up!" : p.xp + " XP — MAX LEVEL! 👑";
 
+      // header mini level strip
+      const hsl = $("hdrLevelName");
+      if (hsl) {
+        hsl.textContent = p.face + " " + p.name + " · " + lvl.name;
+        $("hdrXpFill").style.width = pct + "%";
+        $("hdrXpText").textContent = "Lvl " + (idx + 1) + " · " + p.xp + " XP";
+      }
+
       const row = $("badgeRow"); row.innerHTML = "";
       BADGES.forEach(b => {
         const el = document.createElement("span");
@@ -714,10 +731,15 @@
       const ranked = Object.entries(state.profiles).map(([id, p]) => ({ id, p }))
         .sort((a, b) => b.p.xp - a.p.xp);
       ranked.forEach((r, i) => {
-        const el = document.createElement("span");
-        el.className = "lb-item" + (i === 0 && r.p.xp > 0 ? " leader" : "");
-        const medal = i === 0 && r.p.xp > 0 ? "👑" : ("#" + (i + 1));
-        el.innerHTML = '<span class="lb-rank">' + medal + '</span> ' + r.p.face + ' ' + r.p.name + ' · ' + r.p.xp + ' XP';
+        const lvl = levelFor(r.p.xp).lvl;
+        const el = document.createElement("div");
+        el.className = "lb-item" + (i === 0 && r.p.xp > 0 ? " leader" : "") + (r.id === state.activeId ? " me" : "");
+        const medal = (i === 0 && r.p.xp > 0) ? "👑" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : ("#" + (i + 1))));
+        el.innerHTML =
+          '<span class="lb-rank">' + medal + '</span>' +
+          '<span class="lb-face">' + r.p.face + '</span>' +
+          '<span class="lb-name">' + r.p.name + '<small>' + lvl.name + '</small></span>' +
+          '<span class="lb-xp">' + r.p.xp + '<small>XP</small></span>';
         lb.appendChild(el);
       });
     }
@@ -731,8 +753,12 @@
         const isUnlocked = myLevel >= (need === 0 ? 1 : need);
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "chip" + (p.theme === key ? " theme-active" : "") + (isUnlocked ? "" : " locked");
-        b.textContent = isUnlocked ? t.label : t.label + " 🔒 Lv" + need;
+        b.className = "skin" + (p.theme === key ? " skin-active" : "") + (isUnlocked ? "" : " skin-locked");
+        const tag = isUnlocked ? (p.theme === key ? "Active" : "Tap") : "🔒 Lv" + need;
+        b.innerHTML =
+          '<span class="skin-swatch" style="background:' + t.vars["--gamebar-grad"] + '"></span>' +
+          '<span class="skin-name">' + t.label + '</span>' +
+          '<span class="skin-tag">' + tag + '</span>';
         b.addEventListener("click", () => {
           if (!isUnlocked) { sfx("pop"); showToast("🔒 Reach Level " + need + " to unlock " + t.label + "!"); return; }
           p.theme = key; saveState(); applyTheme(key); sfx("pop"); renderThemes();
@@ -748,10 +774,10 @@
         list.innerHTML = '<li class="history-empty">Nothing here yet — add your first event to start the log! 🌟</li>';
         clr.style.display = "none"; lastUsed.textContent = "Never used yet"; return;
       }
-      lastUsed.textContent = "Last used: " + friendlyWhen(p.history[0].at);
+      lastUsed.textContent = "Last: " + friendlyWhen(p.history[0].at);
       clr.style.display = "inline-block";
       list.innerHTML = "";
-      p.history.slice(0, 12).forEach(h => {
+      p.history.slice(0, 15).forEach(h => {
         const li = document.createElement("li"); li.className = "history-item";
         const left = document.createElement("span");
         left.textContent = (h.emoji || "📌") + " " + h.title + (h.date ? " · " + h.date : "");
@@ -763,7 +789,7 @@
 
     function renderQuest() {
       const p = profile(), q = $("quest");
-      if (p.questDay === todayKey()) { q.classList.add("done"); q.textContent = "✅ Today’s quest complete — nice work, " + p.name + "! Come back tomorrow."; }
+      if (p.questDay === todayKey()) { q.classList.add("done"); q.textContent = "✅ Today’s quest complete — nice work, " + p.name + "!"; }
       else { q.classList.remove("done"); q.textContent = "🎯 Today’s quest: log 1 event for a +15 XP bonus!"; }
     }
 
@@ -777,8 +803,8 @@
       }
       let text = "";
       if (!p.lastDay) text = "👋 Hi " + p.name + "! Add your first event and grab the +15 XP daily bonus. 🎯";
-      else if (days >= 3) text = "👋 It’s been " + days + " days, " + p.name + " — anything coming up? Log it for +15 XP and keep Dad in the loop!";
-      else if (p.streak >= 1) text = "🔥 You’ve got a " + p.streak + "-day streak going, " + p.name + " — log something today to keep it alive!";
+      else if (days >= 3) text = "👋 It’s been " + days + " days, " + p.name + " — anything coming up? Log it for +15 XP!";
+      else if (p.streak >= 1) text = "🔥 " + p.streak + "-day streak, " + p.name + " — log something today to keep it alive!";
       if (text) { $("nudgeText").textContent = text; n.classList.add("show"); } else n.classList.remove("show");
     }
 
@@ -1238,7 +1264,7 @@
     /* ============================================================
        WIRE-UP
        ============================================================ */
-    repeatTypeSelect.addEventListener("change", () => { repeatCountGroup.style.opacity = repeatTypeSelect.value === "none" ? "0.3" : "1"; });
+    repeatTypeSelect.addEventListener("change", () => { repeatCountGroup.style.opacity = repeatTypeSelect.value === "none" ? "0.4" : "1"; });
     repeatTypeSelect.dispatchEvent(new Event("change"));
 
     gcalBtn.addEventListener("click", addToGoogleCalendar);
@@ -1272,6 +1298,15 @@
     $("saveTplBtn").addEventListener("click", saveCurrentAsTemplate);
     $("nudgeClose").addEventListener("click", () => $("nudge").classList.remove("show"));
 
+    // ---------- TABS ----------
+    const tabPanels = { plan: $("tab-plan"), game: $("tab-game"), log: $("tab-log") };
+    function showTab(tab) {
+      Object.entries(tabPanels).forEach(([k, el]) => { if (el) el.hidden = (k !== tab); });
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => { showTab(b.dataset.tab); sfx("pop"); }));
+
     // install as an app
     let deferredPrompt = null;
     window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredPrompt = e; $("installBtn").classList.add("show"); });
@@ -1297,6 +1332,7 @@
     renderTemplates(); renderDateChips(); renderTimeChips();
     applyTheme(profile().theme);
     renderAll();
+    showTab("plan");
   </script>
 </body>
 </html>
