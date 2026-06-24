@@ -607,6 +607,7 @@
       return {
         soundOn: true,
         activeId: "kyleigh",
+        seededFamily: false,
         customTemplates: [],
         profiles: {
           kyleigh: newProfile("Kyleigh", "👧", "unicorn"),
@@ -624,6 +625,7 @@
         const s = JSON.parse(raw);
         const base = defaultState();
         return { soundOn: s.soundOn !== false, activeId: s.activeId || base.activeId,
+                 seededFamily: s.seededFamily === true,
                  customTemplates: Array.isArray(s.customTemplates) ? s.customTemplates : [],
                  profiles: Object.assign(base.profiles, s.profiles || {}) };
       } catch (e) { return defaultState(); }
@@ -1095,6 +1097,22 @@
       { label: "🏫 Field Trip", title: "School Field Trip", emoji: "🎓", start: "08:00", end: "14:00", loc: "School", desc: "School field trip — permission slip and lunch needed.", repeat: "none", count: "" }
     ];
 
+    // Real family events, auto-built from the Google Calendar (editable / removable).
+    const FAMILY_SEEDS = [
+      { label: "⛪️ City Church", title: "City Church", emoji: "", start: "10:00", end: "12:00",
+        loc: "City Church, 8200 Macon Rd, Cordova, TN 38018", desc: "Sunday church service.", repeat: "weekly", count: "12" },
+      { label: "🏐 Kyleigh’s Volleyball", title: "Kyleigh’s Volleyball", emoji: "🏐", start: "09:00", end: "11:00",
+        loc: "Millington First Baptist Church, 5010 W Union Rd, Millington, TN 38053", desc: "Kyleigh’s volleyball games.", repeat: "none", count: "" },
+      { label: "🎺 Band Concert", title: "Munford Band Concert", emoji: "🎺", start: "18:30", end: "20:00",
+        loc: "Munford High School, 1080 McLaughlin Dr, Munford, TN 38058", desc: "Munford band concert / performance.", repeat: "none", count: "" },
+      { label: "🤝 Band Boosters", title: "Band Boosters Meeting", emoji: "🤝", start: "19:00", end: "20:00",
+        loc: "Munford High School, 1080 McLaughlin Dr, Munford, TN 38058", desc: "Monthly band boosters meeting.", repeat: "monthly", count: "6" },
+      { label: "👨‍👧‍👦 Kids Weekend", title: "Kids Weekend", emoji: "👨‍👧‍👦", start: "18:30", end: "19:30",
+        loc: "Walmart Supercenter, 8445 US-51 N, Millington, TN 38053", desc: "Custody weekend — pickup at Walmart Millington.", repeat: "biweekly", count: "8" },
+      { label: "🌟 Co-Parent Check-In", title: "Co-Parenting Check-In", emoji: "🌟", start: "18:30", end: "19:15",
+        loc: "", desc: "Monthly check-in (Jeff & Ashley).", repeat: "monthly", count: "6" }
+    ];
+
     function isoFor(d) { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
 
     function applyTemplate(t) {
@@ -1249,6 +1267,13 @@
     // register service worker (enables offline + installable)
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+    }
+
+    // First run: seed the family's real events as removable quick buttons
+    if (!state.seededFamily) {
+      state.seededFamily = true;
+      FAMILY_SEEDS.forEach(t => state.customTemplates.push(t));
+      saveState();
     }
 
     renderTemplates(); renderDateChips(); renderTimeChips();
